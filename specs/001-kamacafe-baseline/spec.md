@@ -23,8 +23,8 @@ the displayed ingredients, settings, and ordered steps.
 **Acceptance Scenarios**:
 
 1. **Given** a visitor opens KamaCafe, **When** they view the drink list, **Then**
-   they see all 11 specified drinks under Espresso drinks or Brewed drinks, each
-   with a name, short description, and estimated caffeine amount.
+   they see every published drink under its catalog category, each with a name,
+   short description, and estimated caffeine amount.
 2. **Given** a visitor selects a drink, **When** its guide opens,
    **Then** they see the ingredient amounts, grind size, water temperature, milk
    temperature where applicable, and ordered steps with explicit units.
@@ -80,6 +80,7 @@ and instructions for issues and pull requests without contacting a maintainer.
 - A drink without milk MUST omit milk fields rather than show a misleading zero value.
 - A published drink with a missing required value MUST be treated as incomplete and
   corrected before publication.
+- A drink with a missing category or reusable recipe reference MUST not be published.
 - Long drink names or steps MUST wrap and remain readable on narrow screens.
 - If decorative media fails to load, required brewing information MUST remain available.
 
@@ -87,18 +88,20 @@ and instructions for issues and pull requests without contacting a maintainer.
 
 ### Functional Requirements
 
-- **FR-001**: The app MUST list these drinks under the specified categories, each
-  with a name, short description, and estimated caffeine amount in milligrams (mg)
-  per serving. An estimate that varies MUST show a range or stated assumption:
-  - **Espresso drinks**: Espresso, Latte, Cappuccino, Americano, Mocha, Macchiato,
-    Flat white.
-  - **Brewed drinks**: Pour-over, French press, Turkish coffee, Cold brew.
+- **FR-001**: The app MUST use catalog.json as the source of truth for published
+  categories, drinks, and recipes. It MUST list every valid catalog drink under
+  its referenced category, with a name, short description, and estimated caffeine
+  amount in milligrams (mg) per serving. An estimate that varies MUST show a range
+  or stated assumption. Category and drink names or counts MUST NOT be fixed in
+  the app outside the catalog.
 - **FR-002**: A visitor MUST be able to choose any listed drink and view its guidance without creating an account.
 - **FR-003**: Every drink MUST state its serving size, a one-line description,
   estimated total preparation time in minutes, a difficulty label (Easy, Moderate,
   or Advanced) with a brief explanation, ingredients, and ordered steps.
-- **FR-004**: Every published drink MUST include coffee amount, grind size, water
-  amount, water temperature, and ordered preparation steps.
+- **FR-004**: Every published drink MUST provide coffee amount, grind size, water
+  amount or target espresso yield, water temperature, and ordered preparation
+  steps, either directly or through a valid reusable recipe reference. The
+  visitor MUST see complete guidance without resolving references manually.
 - **FR-005**: A drink that uses milk MUST include milk amount and milk temperature;
   a drink without milk MUST omit these fields.
 - **FR-006**: Each drink MUST include amounts for any additional ingredients and
@@ -114,12 +117,17 @@ and instructions for issues and pull requests without contacting a maintainer.
 - **FR-011**: Required brewing guidance MUST remain usable if optional media does not load.
 - **FR-012**: The published app MUST be reachable from a custom domain.
 - **FR-013**: The app MUST link to the public GitHub project and provide instructions for reporting issues and proposing recipe or feature changes.
+- **FR-014**: Catalog entries with missing required fields, duplicate IDs,
+  unresolved category or recipe references, or circular recipe references MUST
+  be rejected before publication.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Drink Category**: Espresso drinks or Brewed drinks; groups the specified catalog.
-- **Drink Recipe**: A named drink with a short description, serving size, ingredient
-  quantities, grind size, ordered steps, and any drink-specific settings or assumptions.
+- **Drink Category**: A named group of drinks with a stable ID in catalog.json.
+- **Drink Recipe**: A named drink with a stable ID, category reference, short
+  description, serving size, ingredient quantities, grind size, ordered steps,
+  and any drink-specific settings or assumptions. It may reference a reusable
+  base recipe that contributes the underlying brewing instructions.
 - **Ingredient Guidance**: A quantity and unit for coffee, water, milk, or
   another applicable ingredient; may include a range when precision would mislead.
 - **Temperature Guidance**: A water or applicable milk temperature, possibly a range,
@@ -131,12 +139,13 @@ and instructions for issues and pull requests without contacting a maintainer.
 
 ### Measurable Outcomes
 
-- **SC-001**: All 11 specified drinks appear in the correct category with a selectable
-  guide, stated serving size, and caffeine estimate in milligrams per serving.
+- **SC-001**: 100% of valid published catalog drinks appear in their referenced
+  categories with a selectable guide, stated serving size, and caffeine estimate
+  in milligrams per serving.
 - **SC-002**: 100% of published drinks state serving size, preparation time,
-  difficulty with explanation, ingredients, coffee and water amounts, grind size,
-  water temperature, and ordered steps. Every milk-using drink also states milk
-  amount and temperature.
+  difficulty with explanation, ingredients, coffee and water guidance, grind
+  size, water temperature, and ordered steps after any reusable recipe is
+  resolved. Every milk-using drink also states milk amount and temperature.
 - **SC-003**: On a mid-range phone with a typical 4G connection, the drink list
   and essential guidance for a selected drink become usable within 3 seconds in
   at least 9 of 10 measured visits.
@@ -145,9 +154,10 @@ and instructions for issues and pull requests without contacting a maintainer.
 
 ## Assumptions
 
-- Each guide covers a fixed serving size, stated for the drink.
-- The 11 named drinks in FR-001 are the initial catalog; additional drinks are
-  outside this baseline.
+- Each guide states an approximate serving size; ingredient ranges or foam can
+  change the final drink volume.
+- Categories, drinks, and recipes may be added, removed, or reordered by updating
+  catalog.json and publishing the updated static site.
 - The baseline does not include accounts, payments, search, reviews, user-generated recipes inside the app, or live personalization.
 - Contributions are handled through the public project's issue and pull request process, rather than through forms inside the app.
 - Maintainers review recipe content for completeness and internal consistency before publication.

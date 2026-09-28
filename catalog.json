@@ -1,0 +1,464 @@
+{
+  "categories": [
+    {
+      "id": "espresso-drink",
+      "name": "Espresso Drink"
+    },
+    {
+      "id": "brewed-coffee",
+      "name": "Brewed Coffee"
+    }
+  ],
+  "drinks": [
+    {
+      "id": "espresso",
+      "name": "Espresso",
+      "header": "A concentrated shot with a rich, golden crema.",
+      "category": "espresso-drink",
+      "servingSizeMl": 36,
+      "prepTimeMinutes": 5,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Dialing in grind and pulling a balanced shot take practice."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "ingredients": [
+          {
+            "name": "Ground coffee",
+            "quantity": 18,
+            "unit": "g"
+          }
+        ],
+        "grind": "fine",
+        "waterTemperatureC": 93,
+        "espressoYieldG": 36,
+        "waterGuidance": "Fill the machine reservoir; target 36 g of brewed espresso rather than measuring water into the portafilter.",
+        "steps": [
+          "Grind 18 g of coffee finely and dose it into the portafilter.",
+          "Distribute, tamp evenly, and lock in the portafilter.",
+          "Set the machine to about 93°C and pull about 36 g of espresso in 25–30 seconds. Taste and adjust the grind next time."
+        ]
+      }
+    },
+    {
+      "id": "latte",
+      "name": "Latte",
+      "header": "Espresso softened with plenty of silky steamed milk.",
+      "category": "espresso-drink",
+      "servingSizeMl": 216,
+      "prepTimeMinutes": 7,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires an espresso shot and controlled milk steaming."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Milk",
+            "quantity": 180,
+            "unit": "mL",
+            "temperatureC": 60
+          }
+        ],
+        "steps": [
+          "Prepare the Espresso recipe and pour it into a cup.",
+          "Steam 180 mL of milk to about 60°C, creating glossy microfoam.",
+          "Pour the milk into the espresso, finishing with a thin layer of foam."
+        ]
+      }
+    },
+    {
+      "id": "cappuccino",
+      "name": "Cappuccino",
+      "header": "A balanced espresso and milk drink with a generous foam cap.",
+      "category": "espresso-drink",
+      "servingSizeMl": 156,
+      "prepTimeMinutes": 7,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires an espresso shot and a generous, even milk foam."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Milk",
+            "quantity": 120,
+            "unit": "mL",
+            "temperatureC": 60
+          }
+        ],
+        "steps": [
+          "Prepare the Espresso recipe and pour it into a cup.",
+          "Steam 120 mL of milk to about 60°C, adding more air than for a latte.",
+          "Pour the milk over the espresso, keeping a generous foam layer on top."
+        ]
+      }
+    },
+    {
+      "id": "pour-over",
+      "name": "Pour-over",
+      "header": "A clear, flavorful cup made by slowly pouring water over coffee.",
+      "category": "brewed-coffee",
+      "servingSizeMl": 280,
+      "prepTimeMinutes": 5,
+      "difficulty": {
+        "level": "Easy",
+        "reason": "Requires a steady pour and attention to brew time."
+      },
+      "caffeine": {
+        "minMg": 140,
+        "maxMg": 230,
+        "note": "Approximate range centered on measured V60 servings; the result depends on bean and brew strength.",
+        "sourceUrls": [
+          "https://www.mdpi.com/1420-3049/30/20/4080"
+        ]
+      },
+      "recipe": {
+        "ingredients": [
+          {
+            "name": "Ground coffee",
+            "quantity": 20,
+            "unit": "g"
+          },
+          {
+            "name": "Water",
+            "quantity": 320,
+            "unit": "mL",
+            "temperatureC": 94
+          },
+          {
+            "name": "Paper filter",
+            "quantity": 1,
+            "unit": "filter"
+          }
+        ],
+        "grind": "medium-fine",
+        "waterTemperatureC": 94,
+        "steps": [
+          "Rinse the filter and add 20 g of medium-fine coffee.",
+          "Pour 40 mL of 94°C water to wet all the grounds; wait 30 seconds.",
+          "Pour the remaining 280 mL slowly in circles. Aim to finish draining in 3–4 minutes."
+        ]
+      }
+    },
+    {
+      "id": "french-press",
+      "name": "French press",
+      "header": "An easy immersion brew with a rounded, heavier body.",
+      "category": "brewed-coffee",
+      "servingSizeMl": 390,
+      "prepTimeMinutes": 6,
+      "difficulty": {
+        "level": "Easy",
+        "reason": "Immersion brewing needs only a timed steep and careful pressing."
+      },
+      "caffeine": {
+        "minMg": 160,
+        "maxMg": 320,
+        "note": "Broad estimate informed by measured French press servings; this recipe's larger serving and bean choice change the result.",
+        "sourceUrls": [
+          "https://www.mdpi.com/1420-3049/30/20/4080"
+        ]
+      },
+      "recipe": {
+        "ingredients": [
+          {
+            "name": "Ground coffee",
+            "quantity": 30,
+            "unit": "g"
+          },
+          {
+            "name": "Water",
+            "quantity": 450,
+            "unit": "mL",
+            "temperatureC": 94
+          }
+        ],
+        "grind": "coarse",
+        "waterTemperatureC": 94,
+        "steps": [
+          "Add 30 g of coarse coffee to the press and pour in 450 mL of 94°C water.",
+          "Stir gently, cover, and steep for 4 minutes.",
+          "Press the plunger slowly and pour right away."
+        ]
+      }
+    },
+    {
+      "id": "americano",
+      "name": "Americano",
+      "header": "Espresso lengthened with hot water for a gentler cup.",
+      "category": "espresso-drink",
+      "servingSizeMl": 186,
+      "prepTimeMinutes": 6,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires an espresso shot followed by controlled dilution."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Water",
+            "quantity": {
+              "min": 120,
+              "max": 180
+            },
+            "unit": "mL",
+            "temperatureC": 85
+          }
+        ],
+        "steps": [
+          "Prepare the Espresso recipe.",
+          "Add 120–180 mL of water at about 85°C to a mug.",
+          "Pour the espresso into the water and adjust within the stated range to taste."
+        ]
+      }
+    },
+    {
+      "id": "macchiato",
+      "name": "Macchiato",
+      "header": "A traditional espresso marked with a small spoonful of milk foam.",
+      "category": "espresso-drink",
+      "servingSizeMl": 46,
+      "prepTimeMinutes": 6,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires an espresso shot and a small amount of textured milk foam."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Steamed milk foam",
+            "quantity": {
+              "min": 5,
+              "max": 10
+            },
+            "unit": "mL",
+            "temperatureC": 60
+          }
+        ],
+        "steps": [
+          "Prepare the full double-shot Espresso recipe in a small cup.",
+          "Steam a little milk to about 60°C and spoon 5–10 mL of foam on top."
+        ]
+      }
+    },
+    {
+      "id": "turkish",
+      "name": "Turkish coffee",
+      "header": "Finely ground coffee simmered in a cezve and served unfiltered.",
+      "category": "brewed-coffee",
+      "servingSizeMl": 70,
+      "prepTimeMinutes": 5,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Slow heating and watching the rising foam prevent boiling over."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 110,
+        "note": "Approximate range around a measured 129.6 mg per 100 mL Turkish coffee result, scaled to a 70 mL serving; preparation varies.",
+        "sourceUrls": [
+          "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2024.1407590/pdf"
+        ]
+      },
+      "recipe": {
+        "ingredients": [
+          {
+            "name": "Ground coffee",
+            "quantity": 7,
+            "unit": "g"
+          },
+          {
+            "name": "Water",
+            "quantity": 70,
+            "unit": "mL",
+            "temperatureC": 20
+          },
+          {
+            "name": "Sugar",
+            "quantity": {
+              "min": 0,
+              "max": 8
+            },
+            "unit": "g",
+            "optional": true,
+            "note": "Add to taste before heating."
+          }
+        ],
+        "grind": "extra-fine",
+        "waterTemperatureC": 20,
+        "steps": [
+          "Add 70 mL of room-temperature water, 7 g of extra-fine coffee, and optional sugar to a cezve. Stir before heating.",
+          "Heat slowly until the foam rises; remove before it boils over.",
+          "Pour gently into a small cup and let the grounds settle before sipping."
+        ]
+      }
+    },
+    {
+      "id": "mocha",
+      "name": "Mocha",
+      "header": "A comforting latte with chocolate blended in.",
+      "category": "espresso-drink",
+      "servingSizeMl": 216,
+      "prepTimeMinutes": 7,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires espresso, chocolate mixing, and controlled milk steaming."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 150,
+        "note": "Espresso-based estimate; 20 g of chocolate sauce may add a small, variable amount of caffeine.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762",
+          "https://www.ars.usda.gov/ARSUserFiles/80400525/data/hg72/hg72_2002.pdf"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Chocolate sauce",
+            "quantity": 20,
+            "unit": "g"
+          },
+          {
+            "name": "Milk",
+            "quantity": 180,
+            "unit": "mL",
+            "temperatureC": 60
+          }
+        ],
+        "steps": [
+          "Prepare the Espresso recipe and stir 20 g of chocolate sauce into it until smooth.",
+          "Steam 180 mL of milk to about 60°C and pour it over the chocolate espresso.",
+          "Stir gently and serve."
+        ]
+      }
+    },
+    {
+      "id": "flat-white",
+      "name": "Flat white",
+      "header": "A small milk drink where the espresso stays prominent.",
+      "category": "espresso-drink",
+      "servingSizeMl": 186,
+      "prepTimeMinutes": 7,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires an espresso shot and fine, lightly aerated milk."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Milk",
+            "quantity": {
+              "min": 140,
+              "max": 160
+            },
+            "unit": "mL",
+            "temperatureC": 60
+          }
+        ],
+        "steps": [
+          "Prepare the Espresso recipe in a small cup.",
+          "Steam 140–160 mL of milk to about 60°C with very fine microfoam.",
+          "Pour the milk into the espresso with only a thin foam layer."
+        ]
+      }
+    },
+    {
+      "id": "iced-latte",
+      "name": "Iced latte",
+      "header": "Fresh espresso poured over cold milk and ice.",
+      "category": "espresso-drink",
+      "servingSizeMl": 216,
+      "prepTimeMinutes": 6,
+      "difficulty": {
+        "level": "Moderate",
+        "reason": "Requires an espresso shot and simple cold assembly."
+      },
+      "caffeine": {
+        "minMg": 70,
+        "maxMg": 145,
+        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "sourceUrls": [
+          "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
+        ]
+      },
+      "recipe": {
+        "baseRecipeId": "espresso",
+        "ingredients": [
+          {
+            "name": "Cold milk",
+            "quantity": 180,
+            "unit": "mL",
+            "temperatureC": 4
+          },
+          {
+            "name": "Ice",
+            "quantity": 120,
+            "unit": "g"
+          }
+        ],
+        "steps": [
+          "Fill a tall glass with 120 g of ice and add 180 mL of refrigerated milk.",
+          "Prepare the Espresso recipe.",
+          "Pour the espresso over the milk and ice; stir to combine."
+        ]
+      }
+    }
+  ]
+}

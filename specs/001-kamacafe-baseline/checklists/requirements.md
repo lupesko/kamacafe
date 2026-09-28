@@ -31,6 +31,8 @@
 
 ## Notes
 
-- The 11-drink catalog, fixed serving size, g/mL/°C units, and excluded features
-  are explicit assumptions or requirements.
+- catalog.json is the user-designated source of truth for categories, drinks,
+  and recipes; the specification does not fix their names or count.
+- Recipe references and required content are checked before publication. The
+  catalog currently has 11 drinks and uses g/mL/°C for mass, volume, and temperature.
 - The constitution supplies the static hosting constraint; deployment design belongs in planning.
