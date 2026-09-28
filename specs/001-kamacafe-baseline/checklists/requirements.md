@@ -31,6 +31,6 @@
 
 ## Notes
 
-- The 13-drink catalog, one-cup serving definition, 1–12 cup range, metric default,
-  and excluded features are explicit assumptions or requirements.
+- The 11-drink catalog, fixed serving size, g/mL/°C units, and excluded features
+  are explicit assumptions or requirements.
 - The constitution supplies the static hosting constraint; deployment design belongs in planning.

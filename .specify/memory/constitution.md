@@ -1,3 +1,13 @@
+<!--
+Sync Impact Report
+- Version change: 1.0.0 -> 2.0.0
+- Modified principles: I. Useful Brewing Guidance (single measurement system).
+- Modified sections: Development Workflow (unit review).
+- Added sections: none.
+- Removed sections: none.
+- Follow-up TODOs: none.
+-->
+
 # KamaCafe Constitution
 
 ## Core Principles
@@ -9,11 +19,10 @@ brewing method MUST tell a consumer how to make the coffee. Guidance MUST includ
 coffee amount, grind size, water amount, water temperature, and steps needed to use those
 values. Methods that use milk MUST also specify its amount and temperature. Guidance
 MUST include any other method-specific inputs needed to reproduce the drink. Measurements
-MUST use explicit units, and users MUST be able to view amounts and temperatures in
-metric or imperial units. Conversions MUST preserve the intended proportions and
-temperature guidance. When a value depends on preference or equipment, the app MUST
-present a usable range or explain the assumption. This keeps recipes actionable without
-suggesting false precision.
+MUST use explicit units: grams (g) for mass, milliliters (mL) for liquid volume, and
+degrees Celsius (°C) for temperature. When a value depends on preference or equipment,
+the app MUST present a usable range or explain the assumption. This keeps recipes
+actionable without suggesting false precision.
 
 ### II. Simplicity, Beauty, and Speed
 
@@ -66,7 +75,7 @@ implementation. Pull requests MUST describe the user-visible change, note how it
 verified, and update brewing guidance or documentation when relevant. Reviewers MUST
 check alignment with the core principles, verify affected behavior, and check mobile
 usability and load performance for interface changes. Changes to brewing data or displayed
-values MUST be checked in both unit systems.
+values MUST be checked for consistent units and recipe proportions.
 A change that increases complexity MUST document why simpler alternatives do not meet
 the requirement.
 
@@ -85,4 +94,4 @@ expand guidance. PATCH changes clarify wording without changing requirements. Th
 ratification date records the initial adoption; the last amended date changes whenever
 the constitution changes.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-28 | **Last Amended**: 2026-09-28
+**Version**: 2.0.0 | **Ratified**: 2026-09-28 | **Last Amended**: 2026-09-28
