@@ -2,11 +2,13 @@
   "categories": [
     {
       "id": "espresso-drink",
-      "name": "Espresso Drink"
+      "name": "Espresso drinks",
+      "description": "Latte, cappuccino, macchiato & more"
     },
     {
       "id": "brewed-coffee",
-      "name": "Brewed Coffee"
+      "name": "Brewed coffee",
+      "description": "Pour-over, French press, Turkish & more"
     }
   ],
   "drinks": [

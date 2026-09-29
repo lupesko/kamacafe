@@ -12,51 +12,82 @@
 
 ### User Story 1 - Choose a Method and Brew (Priority: P1)
 
-As a coffee enthusiast, I can browse the coffee drinks, choose one, and follow complete
-instructions for making it.
+As a coffee enthusiast, I can choose a coffee category, browse its drinks, choose
+one, and follow complete instructions for making it.
 
 **Why this priority**: A usable brewing guide is the core value of KamaCafe.
 
-**Independent Test**: A visitor can choose any listed drink and prepare it using only
-the displayed ingredients, settings, and ordered steps.
+**Independent Test**: A visitor can choose a category and any drink in it, then
+prepare it using only the displayed ingredients, settings, and ordered steps.
 
 **Acceptance Scenarios**:
 
-1. **Given** a visitor opens KamaCafe, **When** they view the drink list, **Then**
-   they see every published drink under its catalog category, each with a name,
-   short description, and estimated caffeine amount.
-2. **Given** a visitor selects a drink, **When** its guide opens,
+1. **Given** a visitor opens KamaCafe, **When** they view the home page, **Then**
+   they see a choice for every published catalog category.
+2. **Given** a visitor selects a category, **When** its page opens, **Then** they
+   see every drink in that category, in catalog order, with a name, estimated
+   preparation time, difficulty, and a way to open its guide.
+3. **Given** a visitor selects a drink, **When** its guide opens,
    **Then** they see the ingredient amounts, grind size, water temperature, milk
    temperature where applicable, and ordered steps with explicit units.
-3. **Given** a drink includes milk, **When** its guide opens, **Then** milk amount
+4. **Given** a drink includes milk, **When** its guide opens, **Then** milk amount
    and temperature are displayed with the other required inputs.
-4. **Given** a drink varies by equipment or taste, **When** its guide opens, **Then**
+5. **Given** a drink varies by equipment or taste, **When** its guide opens, **Then**
    the variable value is shown as a usable range or with a stated assumption.
 
 ---
 
-### User Story 2 - Brew on a Phone (Priority: P2)
+### User Story 2 - Share a Drink Guide (Priority: P2)
+
+As a visitor, I can send someone a link to a drink guide and know it will open that
+same guide, even if they have never visited KamaCafe before.
+
+**Why this priority**: A direct link makes a useful recipe easy to revisit and share.
+
+**Independent Test**: Copy the address of a category or published drink guide,
+open it in a fresh browser session, and verify that the correct view appears
+without first visiting the home view.
+
+**Acceptance Scenarios**:
+
+1. **Given** a visitor selects a category or drink, **When** its page opens,
+   **Then** the browser address changes to that page's designated link.
+2. **Given** a visitor opens a shared category or drink link in a fresh session
+   or refreshes the page, **When** the app loads, **Then** it displays that view.
+3. **Given** a visitor follows a shared link, **When** they use the app's navigation
+   or the browser's Back and Forward controls, **Then** the displayed view and
+   browser address stay in sync.
+4. **Given** a drink's name or category changes, **When** someone opens its
+   existing link, **Then** the link still opens that drink's guide.
+5. **Given** a shared link names an unknown or removed category or drink,
+   **When** someone opens it, **Then** they see an unavailable-page message
+   and can return to the home page.
+
+---
+
+### User Story 3 - Brew on a Phone (Priority: P2)
 
 As a visitor using a phone while making coffee, I can quickly read and operate the
 drink guide without zooming or horizontal scrolling.
 
 **Why this priority**: Mobile use is the primary usage context.
 
-**Independent Test**: With one published drink, complete the choose-and-follow
-flow on a narrow touch screen and by keyboard.
+**Independent Test**: With one published drink, complete the category, drink,
+and guide flow on a narrow touch screen and by keyboard.
 
 **Acceptance Scenarios**:
 
-1. **Given** a narrow phone screen, **When** a visitor opens the drink list or guide,
+1. **Given** a narrow phone screen, **When** a visitor opens the home, category,
+   or drink view,
    **Then** essential guidance remains legible without horizontal scrolling.
-2. **Given** a visitor uses touch or keyboard input, **When** they choose a drink,
-   **Then** the control is operable and the selected drink is clear.
+2. **Given** a visitor uses touch or keyboard input, **When** they choose a
+   category or drink, **Then** the control is operable and the selection is clear.
 3. **Given** optional imagery does not load, **When** a guide opens, **Then** the
    quantities and steps remain usable.
 
 ---
 
-### User Story 3 - Improve the Guide (Priority: P3)
+### User Story 4 - Improve the Guide (Priority: P3)
 
 As a coffee enthusiast, I can find the public project and its contribution instructions
 to report a recipe issue or propose a new drink.
@@ -81,6 +112,8 @@ and instructions for issues and pull requests without contacting a maintainer.
 - A published drink with a missing required value MUST be treated as incomplete and
   corrected before publication.
 - A drink with a missing category or reusable recipe reference MUST not be published.
+- A link to an unknown or removed category or drink MUST show a clear
+  unavailable-page view with a way back to home, rather than a blank page.
 - Long drink names or steps MUST wrap and remain readable on narrow screens.
 - If decorative media fails to load, required brewing information MUST remain available.
 
@@ -89,12 +122,15 @@ and instructions for issues and pull requests without contacting a maintainer.
 ### Functional Requirements
 
 - **FR-001**: The app MUST use catalog.json as the source of truth for published
-  categories, drinks, and recipes. It MUST list every valid catalog drink under
-  its referenced category, with a name, short description, and estimated caffeine
-  amount in milligrams (mg) per serving. An estimate that varies MUST show a range
-  or stated assumption. Category and drink names or counts MUST NOT be fixed in
-  the app outside the catalog.
-- **FR-002**: A visitor MUST be able to choose any listed drink and view its guidance without creating an account.
+  categories, drinks, and recipes. The home view MUST offer every catalog
+  category with its name and short description; each category view MUST list
+  its drinks in catalog order, with a name, description, preparation time, and
+  difficulty. Each guide MUST state
+  an estimated caffeine amount in milligrams (mg) per serving; an estimate that
+  varies MUST show a range or stated assumption. Category and drink names or
+  counts MUST NOT be fixed in the app outside the catalog.
+- **FR-002**: A visitor MUST be able to choose a category, choose any drink in
+  it, and view its guidance without creating an account.
 - **FR-003**: Every drink MUST state its serving size, a one-line description,
   estimated total preparation time in minutes, a difficulty label (Easy, Moderate,
   or Advanced) with a brief explanation, ingredients, and ordered steps.
@@ -119,15 +155,37 @@ and instructions for issues and pull requests without contacting a maintainer.
 - **FR-013**: The app MUST link to the public GitHub project and provide instructions for reporting issues and proposing recipe or feature changes.
 - **FR-014**: Catalog entries with missing required fields, duplicate IDs,
   unresolved category or recipe references, or circular recipe references MUST
-  be rejected before publication.
+  be rejected before publication. Category and drink IDs MUST contain only
+  lowercase letters, digits, and hyphens so they can form stable address segments.
+- **FR-015**: Every independently navigable app view MUST have a designated,
+  shareable address. The home view MUST use `/`; each category view MUST use
+  `/#category-{category-id}`, and each drink guide MUST use `/#{drink-id}`,
+  using stable IDs from catalog.json. For example, Espresso uses `/#espresso`.
+- **FR-016**: Selecting a category or drink MUST update the browser address.
+  Each category view MUST provide a way back to home; each drink guide MUST
+  provide a way back to its category. Direct visits and page refreshes at a
+  category or drink address MUST open that view without prior navigation.
+- **FR-017**: Browser Back and Forward navigation MUST keep the displayed view
+  and address in sync.
+- **FR-018**: An address for an unknown or removed category or drink MUST show
+  a clear unavailable-page message and a link to home.
+- **FR-019**: A category or drink ID MUST NOT be reassigned to a different
+  category or drink, so an old shared link cannot silently open unrelated content.
+- **FR-020**: The home, category, and drink views MUST follow the minimal Cocoa
+  visual design in specs/visual-spec.md: category choices on home, a category's
+  drink list, and a drink guide with a description, ingredients, and ordered
+  steps. Drink imagery MUST support the content without obscuring guidance.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Drink Category**: A named group of drinks with a stable ID in catalog.json.
+- **Drink Category**: A named group of drinks with a stable ID and short
+  description in catalog.json; its ID determines the category view's
+  shareable address.
 - **Drink Recipe**: A named drink with a stable ID, category reference, short
   description, serving size, ingredient quantities, grind size, ordered steps,
   and any drink-specific settings or assumptions. It may reference a reusable
-  base recipe that contributes the underlying brewing instructions.
+  base recipe that contributes the underlying brewing instructions. Its stable
+  ID determines the drink guide's shareable address.
 - **Ingredient Guidance**: A quantity and unit for coffee, water, milk, or
   another applicable ingredient; may include a range when precision would mislead.
 - **Temperature Guidance**: A water or applicable milk temperature, possibly a range,
@@ -139,9 +197,9 @@ and instructions for issues and pull requests without contacting a maintainer.
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of valid published catalog drinks appear in their referenced
-  categories with a selectable guide, stated serving size, and caffeine estimate
-  in milligrams per serving.
+- **SC-001**: 100% of valid published catalog categories appear on home, and
+  100% of their drinks appear in the correct category with a selectable guide,
+  stated serving size, and caffeine estimate in milligrams per serving.
 - **SC-002**: 100% of published drinks state serving size, preparation time,
   difficulty with explanation, ingredients, coffee and water guidance, grind
   size, water temperature, and ordered steps after any reusable recipe is
@@ -151,6 +209,9 @@ and instructions for issues and pull requests without contacting a maintainer.
   at least 9 of 10 measured visits.
 - **SC-004**: At viewport widths from 320 to 1440 pixels, all primary flows work
   without horizontal scrolling, and all controls are operable by touch and keyboard.
+- **SC-005**: Every published category and drink link opens the correct view
+  when visited directly and after refresh; Back and Forward navigation returns
+  to the expected views and addresses.
 
 ## Assumptions
 
@@ -158,6 +219,10 @@ and instructions for issues and pull requests without contacting a maintainer.
   change the final drink volume.
 - Categories, drinks, and recipes may be added, removed, or reordered by updating
   catalog.json and publishing the updated static site.
+- Category and drink IDs remain stable when names or ordering change so existing
+  shared links continue to work. Removed or unknown IDs use the unavailable-page
+  view. The chosen hash addresses allow direct visits and refreshes on the
+  static host without an application server.
 - The baseline does not include accounts, payments, search, reviews, user-generated recipes inside the app, or live personalization.
 - Contributions are handled through the public project's issue and pull request process, rather than through forms inside the app.
 - Maintainers review recipe content for completeness and internal consistency before publication.
