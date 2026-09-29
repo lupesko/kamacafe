@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kamacafe.example/contracts/catalog-id-registry.schema.json",
+  "title": "KamaCafe Catalog ID Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["records"],
+  "properties": {
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/idRecord" }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nonBlank": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "idRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "introducedAs", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "kind": { "enum": ["category", "drink"] },
+        "introducedAs": { "$ref": "#/$defs/nonBlank" },
+        "status": { "enum": ["active", "retired"] }
+      }
+    }
+  }
+}

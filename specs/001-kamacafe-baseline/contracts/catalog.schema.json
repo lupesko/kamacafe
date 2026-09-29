@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kamacafe.example/contracts/catalog.schema.json",
+  "title": "KamaCafe Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["categories", "drinks"],
+  "properties": {
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/category" }
+    },
+    "drinks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/drink" }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "nonBlank": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "positiveNumber": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "name": { "$ref": "#/$defs/nonBlank" },
+        "description": { "$ref": "#/$defs/nonBlank" }
+      }
+    },
+    "difficulty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "reason"],
+      "properties": {
+        "level": { "enum": ["Easy", "Moderate", "Advanced"] },
+        "reason": { "$ref": "#/$defs/nonBlank" }
+      }
+    },
+    "caffeine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minMg", "maxMg", "note", "sourceUrls"],
+      "properties": {
+        "minMg": { "type": "number", "minimum": 0 },
+        "maxMg": { "type": "number", "minimum": 0 },
+        "note": { "$ref": "#/$defs/nonBlank" },
+        "sourceUrls": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+        }
+      }
+    },
+    "quantityRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "number", "minimum": 0 },
+        "max": { "$ref": "#/$defs/positiveNumber" }
+      }
+    },
+    "ingredient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "quantity", "unit"],
+      "properties": {
+        "name": { "$ref": "#/$defs/nonBlank" },
+        "quantity": {
+          "oneOf": [
+            { "$ref": "#/$defs/positiveNumber" },
+            { "$ref": "#/$defs/quantityRange" }
+          ]
+        },
+        "unit": { "enum": ["g", "mL", "filter"] },
+        "temperatureC": { "type": "number", "minimum": 0, "maximum": 100 },
+        "optional": { "type": "boolean" },
+        "note": { "$ref": "#/$defs/nonBlank" }
+      }
+    },
+    "recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ingredients", "steps"],
+      "properties": {
+        "baseRecipeId": { "$ref": "#/$defs/slug" },
+        "ingredients": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/ingredient" }
+        },
+        "grind": { "$ref": "#/$defs/nonBlank" },
+        "waterTemperatureC": { "type": "number", "minimum": 0, "maximum": 100 },
+        "espressoYieldG": { "$ref": "#/$defs/positiveNumber" },
+        "waterGuidance": { "$ref": "#/$defs/nonBlank" },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonBlank" }
+        }
+      }
+    },
+    "drink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "header",
+        "category",
+        "servingSizeMl",
+        "prepTimeMinutes",
+        "difficulty",
+        "caffeine",
+        "recipe"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "name": { "$ref": "#/$defs/nonBlank" },
+        "header": { "$ref": "#/$defs/nonBlank" },
+        "category": { "$ref": "#/$defs/slug" },
+        "servingSizeMl": { "$ref": "#/$defs/positiveNumber" },
+        "prepTimeMinutes": { "$ref": "#/$defs/positiveNumber" },
+        "difficulty": { "$ref": "#/$defs/difficulty" },
+        "caffeine": { "$ref": "#/$defs/caffeine" },
+        "recipe": { "$ref": "#/$defs/recipe" }
+      }
+    }
+  }
+}
