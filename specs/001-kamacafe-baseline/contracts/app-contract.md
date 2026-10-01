@@ -35,7 +35,7 @@ changing an existing address.
 ### Category
 
 - Back link labelled “← Coffee styles”.
-- Category name and computed drink count.
+- Category name without a redundant drink count.
 - One drink link per matching catalog drink with image, name, formatted
   preparation time, and difficulty level.
 
@@ -43,9 +43,17 @@ changing an existing address.
 
 - Back link labelled with its category name.
 - Hero with recipe label, drink name, header, image, time, difficulty and reason,
-  serving size, and caffeine range/note.
+  serving size or current batch yield, and caffeine range/note.
 - “What you need” shows every resolved ingredient and inherited setting with
-  explicit units.
+  explicit units. Grind guidance shows its qualitative label and an approximate
+  particle-size range in µm, prefixed with `~`.
+- Recipes explicitly marked scalable show a coffee-to-water ratio. Minus/plus
+  buttons change servings. Ingredient quantities, water guidance, and
+  quantity-bearing steps update together.
+- Fixed recipes, including Espresso and all inherited espresso drinks, omit the
+  ratio/scaler and show the catalog serving size unchanged.
+- Temperatures, grind, ratio, caffeine per serving, and batch equipment marked
+  as non-scaling remain unchanged. Scaling resets when a different drink opens.
 - “How to make it” is an ordered list of every resolved step.
 - Failure to load decorative imagery does not remove or cover any text.
 
@@ -55,7 +63,12 @@ changing an existing address.
 - Use anchors for navigation, an ordered list for steps, and text labels for all
   facts; color and images do not carry unique meaning.
 - Interactive targets are at least 44 by 44 CSS pixels and have visible focus.
+- Recipe scaling uses native buttons and live output, and does not require
+  pointer or hover interaction.
 - Content has no horizontal document overflow from 320 through 1440 px.
+- Sentence-length recipe guidance uses a full-width stacked label/value row;
+  its label and value do not overlap, clip, or obscure each other from 320
+  through 1440 px. Compact quantities may retain two-column alignment.
 - Touch and keyboard behavior do not depend on hover.
 - Motion honors `prefers-reduced-motion`.
 - Images inside fully labelled drink links are decorative (`alt=""`); the bean

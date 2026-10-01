@@ -150,3 +150,63 @@ there is one production site and two providers. Preserve `catalog.json` at the
 repository root so content updates remain obvious; the build imports it
 directly. Serve PNGs from `public/images` at the paths required by the visual
 specification.
+
+## Maintenance Design: Long Recipe Guidance
+
+### Consumer problem
+
+`waterGuidance` is sentence-length prose, but the drink view currently renders
+it in the same two-column fact row used for short values such as `18 g` and
+`93°C`. At narrow widths, the value's content-sized grid track compresses the
+label track until the two texts visually collide. The espresso recipe supplies
+this value to every espresso-derived drink, so one layout defect appears on
+multiple recipe pages.
+
+### Design decision
+
+- Keep compact ingredient and setting rows in their current two-column layout.
+- Mark the `waterGuidance` setting as prose in the local presentation model in
+  `src/components/recipe-panels.tsx`; do not infer layout from string length or
+  catalog wording.
+- Render prose rows with a dedicated modifier class. In `src/styles/app.css`,
+  make that modifier a single-column row with a small label-to-value gap, a
+  full-width value, and left-aligned wrapped text at every viewport size.
+- Do not change recipe data, inheritance, semantic `dl`/`dt`/`dd` markup, or
+  the layout of short values.
+
+This is the smallest targeted correction. A global mobile breakpoint that
+stacks every fact row would reduce scanability for compact values, while a
+`:last-child` selector or character-count heuristic would couple layout to the
+current ordering or copy.
+
+### Test-first implementation sequence
+
+1. Extend `tests/e2e/responsive-accessibility.spec.ts` with a representative
+   espresso-derived recipe check at 320, 390, 430, 680, and 1440 CSS pixels.
+   For the water-guidance row, assert that the label ends before the value
+   begins vertically, the value remains within the row's horizontal bounds,
+   the complete guidance is visible, and the document has no overflow. Confirm
+   the new check fails against the current two-column layout.
+2. Add an explicit prose-row discriminator to the component's local settings
+   model and apply the modifier only to `waterGuidance`.
+3. Add the single-column, left-aligned prose-row CSS while retaining the
+   existing compact-row rules.
+4. Run type checking, unit tests, the focused responsive Playwright test, and
+   the full cross-browser E2E suite. Manually inspect one base espresso guide
+   and one inherited milk-drink guide at a phone width.
+
+### Acceptance criteria
+
+- Water-guidance labels and values never overlap or obscure one another from
+  320 through 1440 CSS pixels in the supported Chromium and WebKit projects.
+- The full guidance remains visible, wraps within the panel, and preserves its
+  semantic label/value relationship.
+- Compact quantities and settings retain their existing two-column alignment.
+- Espresso, all espresso-derived recipes, and brewed recipes continue to show
+  unchanged catalog content and inherited values.
+
+### Constitution re-check
+
+PASS. The fix makes essential brewing guidance readable on mobile, adds a
+focused automated regression, preserves the catalog model and static runtime,
+and introduces no dependency or abstraction beyond a local presentation flag.

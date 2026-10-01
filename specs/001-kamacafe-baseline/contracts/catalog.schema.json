@@ -73,6 +73,23 @@
         "max": { "$ref": "#/$defs/positiveNumber" }
       }
     },
+    "grindGuidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "referenceMicrons"],
+      "properties": {
+        "label": { "$ref": "#/$defs/nonBlank" },
+        "referenceMicrons": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {
+            "min": { "$ref": "#/$defs/positiveNumber" },
+            "max": { "$ref": "#/$defs/positiveNumber" }
+          }
+        }
+      }
+    },
     "ingredient": {
       "type": "object",
       "additionalProperties": false,
@@ -88,7 +105,37 @@
         "unit": { "enum": ["g", "mL", "filter"] },
         "temperatureC": { "type": "number", "minimum": 0, "maximum": 100 },
         "optional": { "type": "boolean" },
-        "note": { "$ref": "#/$defs/nonBlank" }
+        "note": { "$ref": "#/$defs/nonBlank" },
+        "scaleWithRecipe": { "type": "boolean" }
+      }
+    },
+    "brewRatio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coffeeIngredientName", "target"],
+      "properties": {
+        "coffeeIngredientName": { "$ref": "#/$defs/nonBlank" },
+        "target": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "ingredientName"],
+              "properties": {
+                "kind": { "const": "ingredient" },
+                "ingredientName": { "$ref": "#/$defs/nonBlank" }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind"],
+              "properties": {
+                "kind": { "const": "espresso-yield" }
+              }
+            }
+          ]
+        }
       }
     },
     "recipe": {
@@ -102,7 +149,9 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/ingredient" }
         },
-        "grind": { "$ref": "#/$defs/nonBlank" },
+        "scalable": { "type": "boolean" },
+        "brewRatio": { "$ref": "#/$defs/brewRatio" },
+        "grind": { "$ref": "#/$defs/grindGuidance" },
         "waterTemperatureC": { "type": "number", "minimum": 0, "maximum": 100 },
         "espressoYieldG": { "$ref": "#/$defs/positiveNumber" },
         "waterGuidance": { "$ref": "#/$defs/nonBlank" },

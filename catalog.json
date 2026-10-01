@@ -26,7 +26,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]
@@ -39,7 +39,13 @@
             "unit": "g"
           }
         ],
-        "grind": "fine",
+        "grind": {
+          "label": "fine",
+          "referenceMicrons": {
+            "min": 200,
+            "max": 500
+          }
+        },
         "waterTemperatureC": 93,
         "espressoYieldG": 36,
         "waterGuidance": "Fill the machine reservoir; target 36 g of brewed espresso rather than measuring water into the portafilter.",
@@ -64,7 +70,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]
@@ -100,7 +106,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]
@@ -127,7 +133,7 @@
       "name": "Pour-over",
       "header": "A clear, flavorful cup made by slowly pouring water over coffee.",
       "category": "brewed-coffee",
-      "servingSizeMl": 280,
+      "servingSizeMl": 240,
       "prepTimeMinutes": 5,
       "difficulty": {
         "level": "Easy",
@@ -136,7 +142,7 @@
       "caffeine": {
         "minMg": 140,
         "maxMg": 230,
-        "note": "Approximate range centered on measured V60 servings; the result depends on bean and brew strength.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.mdpi.com/1420-3049/30/20/4080"
         ]
@@ -145,27 +151,42 @@
         "ingredients": [
           {
             "name": "Ground coffee",
-            "quantity": 20,
+            "quantity": 15,
             "unit": "g"
           },
           {
             "name": "Water",
-            "quantity": 320,
+            "quantity": 240,
             "unit": "mL",
             "temperatureC": 94
           },
           {
             "name": "Paper filter",
             "quantity": 1,
-            "unit": "filter"
+            "unit": "filter",
+            "scaleWithRecipe": false
           }
         ],
-        "grind": "medium-fine",
+        "scalable": true,
+        "brewRatio": {
+          "coffeeIngredientName": "Ground coffee",
+          "target": {
+            "kind": "ingredient",
+            "ingredientName": "Water"
+          }
+        },
+        "grind": {
+          "label": "medium-fine",
+          "referenceMicrons": {
+            "min": 500,
+            "max": 800
+          }
+        },
         "waterTemperatureC": 94,
         "steps": [
-          "Rinse the filter and add 20 g of medium-fine coffee.",
-          "Pour 40 mL of 94°C water to wet all the grounds; wait 30 seconds.",
-          "Pour the remaining 280 mL slowly in circles. Aim to finish draining in 3–4 minutes."
+          "Rinse the filter and add 15 g of medium-fine coffee.",
+          "Pour 30 mL of 94°C water to wet all the grounds; wait 30 seconds.",
+          "Pour the remaining 210 mL slowly in circles. Aim to finish draining in 3–4 minutes."
         ]
       }
     },
@@ -174,7 +195,7 @@
       "name": "French press",
       "header": "An easy immersion brew with a rounded, heavier body.",
       "category": "brewed-coffee",
-      "servingSizeMl": 390,
+      "servingSizeMl": 240,
       "prepTimeMinutes": 6,
       "difficulty": {
         "level": "Easy",
@@ -183,7 +204,7 @@
       "caffeine": {
         "minMg": 160,
         "maxMg": 320,
-        "note": "Broad estimate informed by measured French press servings; this recipe's larger serving and bean choice change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.mdpi.com/1420-3049/30/20/4080"
         ]
@@ -192,20 +213,34 @@
         "ingredients": [
           {
             "name": "Ground coffee",
-            "quantity": 30,
+            "quantity": 16,
             "unit": "g"
           },
           {
             "name": "Water",
-            "quantity": 450,
+            "quantity": 240,
             "unit": "mL",
             "temperatureC": 94
           }
         ],
-        "grind": "coarse",
+        "scalable": true,
+        "brewRatio": {
+          "coffeeIngredientName": "Ground coffee",
+          "target": {
+            "kind": "ingredient",
+            "ingredientName": "Water"
+          }
+        },
+        "grind": {
+          "label": "coarse",
+          "referenceMicrons": {
+            "min": 1000,
+            "max": 1400
+          }
+        },
         "waterTemperatureC": 94,
         "steps": [
-          "Add 30 g of coarse coffee to the press and pour in 450 mL of 94°C water.",
+          "Add 16 g of coarse coffee to the press and pour in 240 mL of 94°C water.",
           "Stir gently, cover, and steep for 4 minutes.",
           "Press the plunger slowly and pour right away."
         ]
@@ -225,7 +260,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]
@@ -234,19 +269,16 @@
         "baseRecipeId": "espresso",
         "ingredients": [
           {
-            "name": "Water",
-            "quantity": {
-              "min": 120,
-              "max": 180
-            },
+            "name": "Dilution water",
+            "quantity": 150,
             "unit": "mL",
             "temperatureC": 85
           }
         ],
         "steps": [
           "Prepare the Espresso recipe.",
-          "Add 120–180 mL of water at about 85°C to a mug.",
-          "Pour the espresso into the water and adjust within the stated range to taste."
+          "Add 150 mL of dilution water at about 85°C to a mug.",
+          "Pour the espresso into the water and serve."
         ]
       }
     },
@@ -264,7 +296,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]
@@ -302,7 +334,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 110,
-        "note": "Approximate range around a measured 129.6 mg per 100 mL Turkish coffee result, scaled to a 70 mL serving; preparation varies.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2024.1407590/pdf"
         ]
@@ -331,7 +363,21 @@
             "note": "Add to taste before heating."
           }
         ],
-        "grind": "extra-fine",
+        "scalable": true,
+        "brewRatio": {
+          "coffeeIngredientName": "Ground coffee",
+          "target": {
+            "kind": "ingredient",
+            "ingredientName": "Water"
+          }
+        },
+        "grind": {
+          "label": "extra-fine",
+          "referenceMicrons": {
+            "min": 50,
+            "max": 200
+          }
+        },
         "waterTemperatureC": 20,
         "steps": [
           "Add 70 mL of room-temperature water, 7 g of extra-fine coffee, and optional sugar to a cezve. Stir before heating.",
@@ -354,7 +400,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 150,
-        "note": "Espresso-based estimate; 20 g of chocolate sauce may add a small, variable amount of caffeine.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762",
           "https://www.ars.usda.gov/ARSUserFiles/80400525/data/hg72/hg72_2002.pdf"
@@ -396,7 +442,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]
@@ -435,7 +481,7 @@
       "caffeine": {
         "minMg": 70,
         "maxMg": 145,
-        "note": "Indicative range from measured espresso servings; bean, dose, and extraction can change the result.",
+        "note": "Varies by bean and brew.",
         "sourceUrls": [
           "https://www.sciencedirect.com/science/article/pii/S0278691507000762"
         ]

@@ -5,7 +5,7 @@ them from the repository root after the implementation tasks are complete.
 
 ## Prerequisites
 
-- Node.js 24 LTS and npm
+- nvm, Node.js 24 LTS, and npm
 - A current Playwright-supported host for Chromium and WebKit
 - Terraform 1.x for infrastructure validation
 - For deployment only: an AWS account, a Cloudflare-managed zone, a pre-created
@@ -15,7 +15,10 @@ them from the repository root after the implementation tasks are complete.
 ## Install and validate source data
 
 ```bash
+nvm install
+nvm use
 npm ci
+npx playwright install chromium webkit
 npm run validate:catalog
 npm run typecheck
 ```
@@ -68,6 +71,9 @@ Expected scenarios:
 6. Block PNG requests and verify ingredients, settings, and steps remain usable.
 7. Check 320, 390, 430, 680, and 1440 px widths for wrapping and absence of
    horizontal document overflow.
+8. At each required width, open an espresso-derived drink and verify the
+   water-guidance label sits above its complete value, both remain inside the
+   panel, and compact amount rows retain two-column alignment.
 
 Playwright projects cover Mobile Safari, Mobile Chrome, desktop Chrome, and
 desktop WebKit. Before a production release, repeat the main flow manually in
@@ -111,3 +117,9 @@ After the authorized deployment workflow completes:
 4. Complete one espresso-based and one brewed-coffee guide on a real phone.
 5. Run ten cold mobile measurements and record whether essential guidance is
    usable within 3 seconds in at least nine runs.
+
+Record the reviewed local plan and production results in
+`deployment-validation.md`, and the real-device, performance, Safari, and
+VoiceOver results in `production-smoke.md`. Production apply remains blocked
+until the actual hostname, AWS region, Cloudflare zone, OIDC provider, and
+remote-state inputs replace the placeholders in `infra/production.tfvars.example`.

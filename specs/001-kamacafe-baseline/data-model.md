@@ -71,16 +71,29 @@ one other drink recipe. Each drink has one expected image at
 |---|---|---|
 | `baseRecipeId` | Drink ID, optional | Must resolve; must not refer to self or form a cycle |
 | `ingredients` | `Ingredient[]` | Required; local ingredients in display order |
-| `grind` | string, optional | Required after inheritance resolution |
+| `scalable` | boolean, optional | Defaults to false; true only when the recipe can be prepared safely as a proportional batch |
+| `brewRatio` | BrewRatio, optional | Required after inheritance resolution when `scalable` is true; explicitly identifies the coffee dose and brew-water ingredient |
+| `grind` | GrindGuidance, optional | Required after inheritance resolution |
 | `waterTemperatureC` | number, optional | Required after resolution; displayed with °C |
 | `espressoYieldG` | positive number, optional | Alternative output target for espresso recipes; displayed with g |
 | `waterGuidance` | string, optional | Required when water amount is represented by reservoir/yield guidance rather than an ingredient amount |
 | `steps` | string[] | Required, non-empty, ordered, non-blank |
 
 A resolved recipe must contain coffee amount, grind, water amount or espresso
-yield guidance, water temperature, and ordered steps. A recipe that contains a
+yield guidance, water temperature, and ordered steps. A scalable recipe must also
+contain a brew ratio. A recipe that contains a
 milk ingredient must provide its amount and `temperatureC`; recipes without a
 milk ingredient omit milk fields.
+
+### GrindGuidance
+
+| Field | Type | Rules |
+|---|---|---|
+| `label` | string | Required, non-blank qualitative guidance such as `fine` or `coarse` |
+| `referenceMicrons` | QuantityRange | Required positive approximate particle-size range in micrometres (µm); `min` must not exceed `max` |
+
+The range is a reproducible starting reference, not a claim that every ground
+particle has that size. The drink view prefixes the range with `~`.
 
 ### Ingredient
 
@@ -92,6 +105,18 @@ milk ingredient omit milk fields.
 | `temperatureC` | number, optional | Required for milk and for ingredients whose usable temperature matters |
 | `optional` | boolean, optional | Defaults to false |
 | `note` | string, optional | Assumption or usage guidance; non-blank when present |
+| `scaleWithRecipe` | boolean, optional | Defaults to true; false for batch equipment whose count does not change with recipe size |
+
+### BrewRatio
+
+| Field | Type | Rules |
+|---|---|---|
+| `coffeeIngredientName` | string | Required; resolves to exactly one fixed quantity ingredient measured in g |
+| `target` | ingredient target or espresso-yield target | Required; an ingredient target resolves to exactly one fixed quantity measured in mL; an espresso-yield target requires `espressoYieldG` |
+
+The ratio reference is explicit rather than inferred from ingredient names. The
+seed catalog enables it for Pour-over, French press, and Turkish coffee only.
+Espresso and espresso-based drinks remain fixed, one-serving recipes.
 
 ### QuantityRange
 
@@ -125,11 +150,20 @@ ancestors and returns:
 - `ingredients`: ancestor arrays followed by local arrays, preserving order.
 - `steps`: ancestor arrays followed by local arrays, preserving wording and
   renumbered continuously for display.
-- `grind`, `waterTemperatureC`, `espressoYieldG`, and `waterGuidance`: the
+- `scalable`, `brewRatio`, `grind`, `waterTemperatureC`, `espressoYieldG`, and `waterGuidance`: the
   nearest value defined while walking from local recipe toward ancestors.
 
 Resolution fails on an unknown base ID or repeated ID. Publication fails if the
 resolved result does not meet complete-guidance rules.
+
+### ScaledRecipe
+
+For recipes with `scalable: true`, the drink view derives a non-persisted scaled
+recipe from `ResolvedRecipe` and a positive multiplier. Ingredient quantities,
+water guidance, and quantity-bearing step text scale together. Temperatures, grind, brew ratio, and
+ingredients marked `scaleWithRecipe: false` do not change. Displayed quantities
+round to at most one decimal place, while caffeine remains explicitly per serving.
+Fixed recipes show their catalog serving size and do not render scaling controls.
 
 ### AppRoute
 
@@ -142,6 +176,21 @@ resolved result does not meet complete-guidance rules.
 
 Navigation is URL state. A `hashchange` recomputes the route and scrolls the new
 view to the top. Browser history remains owned by the browser.
+
+### RecipeFact presentation model
+
+The recipe panel derives a local, non-persisted view model from
+`ResolvedRecipe`:
+
+| Field | Type | Rules |
+|---|---|---|
+| `label` | string | Visible `dt` text |
+| `value` | string | Visible `dd` text; catalog wording and units remain unchanged |
+| `layout` | `compact \| prose` | `prose` only for sentence-length guidance such as `waterGuidance`; otherwise `compact` |
+
+`layout` is a rendering concern only. It is not added to `catalog.json`, the
+catalog schema, `Recipe`, or `ResolvedRecipe`, and it does not participate in
+recipe inheritance or validation.
 
 ## Validation Sequence
 

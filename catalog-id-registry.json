@@ -1,0 +1,17 @@
+{
+  "records": [
+    { "id": "espresso-drink", "kind": "category", "introducedAs": "Espresso drinks", "status": "active" },
+    { "id": "brewed-coffee", "kind": "category", "introducedAs": "Brewed coffee", "status": "active" },
+    { "id": "espresso", "kind": "drink", "introducedAs": "Espresso", "status": "active" },
+    { "id": "latte", "kind": "drink", "introducedAs": "Latte", "status": "active" },
+    { "id": "cappuccino", "kind": "drink", "introducedAs": "Cappuccino", "status": "active" },
+    { "id": "pour-over", "kind": "drink", "introducedAs": "Pour-over", "status": "active" },
+    { "id": "french-press", "kind": "drink", "introducedAs": "French press", "status": "active" },
+    { "id": "americano", "kind": "drink", "introducedAs": "Americano", "status": "active" },
+    { "id": "macchiato", "kind": "drink", "introducedAs": "Macchiato", "status": "active" },
+    { "id": "turkish", "kind": "drink", "introducedAs": "Turkish coffee", "status": "active" },
+    { "id": "mocha", "kind": "drink", "introducedAs": "Mocha", "status": "active" },
+    { "id": "flat-white", "kind": "drink", "introducedAs": "Flat white", "status": "active" },
+    { "id": "iced-latte", "kind": "drink", "introducedAs": "Iced latte", "status": "active" }
+  ]
+}

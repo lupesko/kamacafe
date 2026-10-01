@@ -1,0 +1,25 @@
+:root {
+  color-scheme: light;
+  --cocoa-primary: #6f4e32;
+  --cocoa-on-primary: #ffffff;
+  --cocoa-primary-container: #ffdcc1;
+  --cocoa-on-primary-container: #2b1706;
+  --cocoa-secondary-container: #e9dfd3;
+  --cocoa-on-secondary-container: #251b12;
+  --cocoa-surface: #fff8f4;
+  --cocoa-surface-container: #f4eee8;
+  --cocoa-surface-high: #eee8e1;
+  --cocoa-on-surface: #211a15;
+  --cocoa-on-surface-variant: #554940;
+  --cocoa-outline: #d8c8bd;
+  --font-sans: Roboto, "Helvetica Neue", Arial, sans-serif;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --radius-row: 1.25rem;
+  --radius-panel: 1.5rem;
+  --radius-hero: 1.75rem;
+  --content-width: 47.5rem;
+  --shell-width: 67.5rem;
+}

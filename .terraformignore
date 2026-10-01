@@ -1,0 +1,14 @@
+.git/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+.terraform.lock.hcl
+node_modules/
+dist/
+playwright-report/
+test-results/
+.lighthouseci/
+.env*
+*.log

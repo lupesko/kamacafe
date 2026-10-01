@@ -134,7 +134,8 @@ and instructions for issues and pull requests without contacting a maintainer.
 - **FR-003**: Every drink MUST state its serving size, a one-line description,
   estimated total preparation time in minutes, a difficulty label (Easy, Moderate,
   or Advanced) with a brief explanation, ingredients, and ordered steps.
-- **FR-004**: Every published drink MUST provide coffee amount, grind size, water
+- **FR-004**: Every published drink MUST provide coffee amount, grind size as a
+  qualitative label with an approximate particle-size range in micrometres (µm), water
   amount or target espresso yield, water temperature, and ordered preparation
   steps, either directly or through a valid reusable recipe reference. The
   visitor MUST see complete guidance without resolving references manually.
@@ -175,6 +176,13 @@ and instructions for issues and pull requests without contacting a maintainer.
   visual design in specs/visual-spec.md: category choices on home, a category's
   drink list, and a drink guide with a description, ingredients, and ordered
   steps. Drink imagery MUST support the content without obscuring guidance.
+- **FR-021**: Every recipe explicitly marked scalable MUST show its
+  coffee-to-brew-water ratio. Espresso and espresso-based recipes MUST remain
+  fixed, one-serving recipes without ratio or scaling controls.
+- **FR-022**: A visitor MUST be able to scale a scalable recipe by servings.
+  Ingredient quantities, water guidance, and
+  quantity-bearing steps MUST update together; temperature, grind, ratio,
+  caffeine per serving, and non-scaling batch equipment MUST remain fixed.
 
 ### Key Entities *(include if feature involves data)*
 

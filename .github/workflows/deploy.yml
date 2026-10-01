@@ -1,0 +1,95 @@
+name: Deploy production
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_site_hostname: ${{ vars.SITE_HOSTNAME }}
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      TF_VAR_cloudflare_zone_id: ${{ vars.CLOUDFLARE_ZONE_ID }}
+      TF_VAR_github_repository: ${{ github.repository }}
+      TF_VAR_github_oidc_provider_arn: ${{ vars.GITHUB_OIDC_PROVIDER_ARN }}
+      TF_VAR_terraform_state_bucket: ${{ vars.TERRAFORM_STATE_BUCKET }}
+      TF_VAR_terraform_state_key: ${{ vars.TERRAFORM_STATE_KEY }}
+      TF_VAR_terraform_state_region: ${{ vars.TERRAFORM_STATE_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_REPOSITORY_URL: https://github.com/${{ github.repository }}
+          VITE_CONTRIBUTING_URL: https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md
+          VITE_SITE_URL: https://${{ vars.SITE_HOSTNAME }}
+      - name: Validate production social metadata
+        run: npm run validate:social -- --production
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.6"
+          terraform_wrapper: false
+      - name: Apply reviewed infrastructure
+        run: |
+          terraform -chdir=infra init \
+            -backend-config="bucket=${TF_VAR_terraform_state_bucket}" \
+            -backend-config="key=${TF_VAR_terraform_state_key}" \
+            -backend-config="region=${TF_VAR_terraform_state_region}" \
+            -backend-config="encrypt=true" \
+            -backend-config="use_lockfile=true"
+          terraform -chdir=infra plan -out=production.tfplan
+          terraform -chdir=infra apply -auto-approve production.tfplan
+          echo "DEPLOY_ROLE_ARN=$(terraform -chdir=infra output -raw deployment_role_arn)" >> "$GITHUB_ENV"
+          echo "SITE_BUCKET=$(terraform -chdir=infra output -raw bucket_name)" >> "$GITHUB_ENV"
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ env.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Upload immutable assets first
+        run: aws s3 sync dist/assets "s3://${SITE_BUCKET}/assets" --delete --cache-control "public,max-age=31536000,immutable"
+      - name: Upload stable images
+        run: aws s3 sync dist/images "s3://${SITE_BUCKET}/images" --delete --cache-control "public,max-age=86400"
+      - name: Upload entry document last
+        run: aws s3 cp dist/index.html "s3://${SITE_BUCKET}/index.html" --content-type "text/html; charset=utf-8" --cache-control "no-cache"
+      - name: Purge changed stable image paths
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          SITE_HOSTNAME: ${{ vars.SITE_HOSTNAME }}
+        run: |
+          mapfile -t images < <(
+            {
+              git diff --name-only HEAD^ HEAD -- public/images/ | sed 's#public#https://'"${SITE_HOSTNAME}"'#'
+              echo "https://${SITE_HOSTNAME}/images/social-preview.png"
+            } | sort -u
+          )
+          if (( ${#images[@]} )); then
+            files=$(printf '%s\n' "${images[@]}" | jq -R . | jq -s .)
+            curl --fail-with-body --request POST \
+              "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              --header "Content-Type: application/json" \
+              --data "$(jq -cn --argjson files "$files" '{files:$files}')"
+          fi

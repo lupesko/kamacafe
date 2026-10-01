@@ -143,3 +143,25 @@ Pulumi would introduce its runtime and state workflow. OpenTofu is viable, but
 Terraform has the clearest Cloudflare examples for this small project. A fully
 uncached site would waste the edge cache; caching `index.html` for a long period
 would delay releases.
+
+## Long recipe-guidance layout
+
+**Decision**: Classify sentence-length water guidance explicitly as a prose
+presentation row and render it as a full-width, stacked `dt`/`dd` pair at all
+supported viewport widths. Keep short quantities and settings in the existing
+two-column fact layout.
+
+**Rationale**: The current grid's content-sized value track is appropriate for
+short values but can consume most of a narrow panel when given a sentence,
+compressing the label until the texts visually collide. `waterGuidance` is a
+semantic prose field and is inherited by multiple recipes, so an explicit
+presentation discriminator fixes every affected page without changing catalog
+content. A stable stacked layout also makes the regression directly testable
+with element geometry in Chromium and WebKit.
+
+**Alternatives considered**: Stacking every fact row below a breakpoint would
+weaken the compact label/value scan pattern unnecessarily. Selecting the last
+row in CSS would break if settings are reordered. Detecting long strings by
+character count would make layout depend on editorial wording and localization.
+Changing or shortening the guidance would hide the layout defect rather than
+make the component robust to valid content.

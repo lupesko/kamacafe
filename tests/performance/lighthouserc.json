@@ -1,0 +1,34 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "./dist",
+      "url": ["http://localhost/", "http://localhost/#espresso"],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "mobile",
+        "screenEmulation": {
+          "mobile": true,
+          "width": 390,
+          "height": 844,
+          "deviceScaleFactor": 2,
+          "disabled": false
+        },
+        "throttlingMethod": "simulate"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "interactive": ["error", { "maxNumericValue": 3000 }],
+        "resource-summary:script:size": ["error", { "maxNumericValue": 102400 }],
+        "resource-summary:stylesheet:size": ["error", { "maxNumericValue": 51200 }],
+        "resource-summary:total:size": ["error", { "maxNumericValue": 4194304 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}
