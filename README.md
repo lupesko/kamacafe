@@ -49,11 +49,46 @@ separately from Cloudflare and may require an explicit re-scrape.
 - `src/components/` and `src/views/`: semantic Preact interface
 - `public/images/`: deployable drink illustrations and the social preview image
 - `tests/`: Vitest, Playwright/axe, and Lighthouse checks
-- `infra/`: Terraform for S3, Cloudflare, and GitHub OIDC deployment
+- `wrangler.jsonc`: assets-only Cloudflare Worker configuration
+- `public/_headers`: browser cache, security, and preview-indexing policy
+- `scripts/`: catalog, metadata, deployment, and production verification gates
 
 ## Deployment
 
-Pull requests run the complete validation pipeline. The protected production workflow builds once, strictly validates social metadata, applies reviewed Terraform, uploads stable images before `index.html`, and purges changed image paths plus the social preview path. Production inputs and credentials are configured outside the repository; see `infra/README.md`.
+Pull requests run the complete validation pipeline, including a Wrangler dry
+run. Production is served directly from Cloudflare Workers Static Assets at
+`https://kamacafe.lupesko.com`; there is no AWS account, S3 origin, Terraform
+state, or request-time Worker code.
+
+The manual release workflow builds and validates one immutable candidate, then
+uploads it without changing production. Its unique Version URL is shown in the
+workflow summary. A maintainer reviews that URL and approves the protected
+`production` environment; the second job promotes the captured version ID at
+100% without rebuilding. See
+[`specs/003-managed-static-deployment/quickstart.md`](specs/003-managed-static-deployment/quickstart.md)
+for one-time domain setup, release verification, and rollback instructions.
+
+Rollback is a separate, reviewer-gated workflow. Supply an explicit known-good
+version ID and a short reason; the workflow records the current version,
+restores the target without rebuilding, and repeats public verification. Direct
+rollback is limited to Cloudflare's 100 most recent published versions.
+
+Rotate the per-Worker token by creating its replacement, updating the protected
+GitHub secret, validating a candidate, and then revoking the old token. Removing
+the Worker or Custom Domain is destructive: first retain the intended release
+IDs and DNS ownership evidence, disable the release workflows, and confirm no
+production traffic depends on the hostname. Platform version changes do not
+clear browser or social-network caches; use finite stable-image caching and
+platform re-scrape controls where needed.
+
+Validate a production-shaped artifact locally without contacting Cloudflare:
+
+```bash
+VITE_SITE_URL=https://kamacafe.lupesko.com npm run build
+npm run validate:social -- --production
+npm run validate:deployment
+WRANGLER_LOG_PATH=/tmp/kamacafe-wrangler.log npx wrangler deploy --dry-run --outdir .wrangler-dry-run
+```
 
 ## Contribute
 

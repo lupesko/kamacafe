@@ -1,13 +1,3 @@
-<!--
-Sync Impact Report
-- Version change: 1.0.0 -> 2.0.0
-- Modified principles: I. Useful Brewing Guidance (single measurement system).
-- Modified sections: Development Workflow (unit review).
-- Added sections: none.
-- Removed sections: none.
-- Follow-up TODOs: none.
--->
-
 # KamaCafe Constitution
 
 ## Core Principles
@@ -61,12 +51,16 @@ change. These checks allow small updates without accumulating avoidable defects.
 
 ## Product and Hosting Constraints
 
-KamaCafe MUST be delivered as a responsive static single page web app hosted on Amazon S3
-and reachable through a custom domain. Its core functions MUST work without an
-application server. The interface and brewing guidance MUST use US English. Deployment
-and repository configuration MUST keep credentials and other secrets out of the public
-source tree. The public interface MUST prioritize the brewing method, ingredients,
-settings, and steps over secondary features.
+KamaCafe MUST be delivered as a responsive static single page web app through a custom
+domain. Its core functions MUST work without an application server or request-time
+compute. Hosting MUST serve the generated static artifact directly from a managed edge
+platform so the project does not maintain a separate public origin. Each production
+release MUST create an immutable, identifiable version that can be previewed before a
+human explicitly promotes that exact version to production and that can be rolled back
+without rebuilding it. The interface and brewing guidance MUST use US English.
+Deployment and repository configuration MUST keep credentials and other secrets out of
+the public source tree. The public interface MUST prioritize the brewing method,
+ingredients, settings, and steps over secondary features.
 
 ## Development Workflow
 
@@ -94,4 +88,4 @@ expand guidance. PATCH changes clarify wording without changing requirements. Th
 ratification date records the initial adoption; the last amended date changes whenever
 the constitution changes.
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-28 | **Last Amended**: 2026-09-28
+**Version**: 3.0.0 | **Ratified**: 2026-09-28 | **Last Amended**: 2026-10-19

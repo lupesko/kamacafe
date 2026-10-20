@@ -4,7 +4,7 @@
 
 - Node.js 24 and npm
 - Playwright-supported Chromium and WebKit hosts
-- A real protected `SITE_HOSTNAME` only for production validation/deployment
+- The canonical production origin `https://kamacafe.lupesko.com`
 
 ## Local build and automated checks
 
@@ -67,12 +67,13 @@ Build with the actual hostname supplied by the protected environment, then run
 the strict gate:
 
 ```bash
-VITE_SITE_URL="https://REAL_PRODUCTION_HOSTNAME" npm run build
+VITE_SITE_URL="https://kamacafe.lupesko.com" npm run build
 npm run validate:social -- --production
+npm run validate:deployment
 ```
 
-Replace `REAL_PRODUCTION_HOSTNAME` before running; the literal placeholder MUST
-be rejected. Strict validation occurs before any deployment upload.
+Strict validation occurs before any immutable Worker version upload. Candidate
+review and promotion follow `specs/003-managed-static-deployment/quickstart.md`.
 
 ## Post-deploy smoke
 

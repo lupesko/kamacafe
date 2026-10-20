@@ -17,10 +17,9 @@ test-results/
 .env
 .env.*
 !.env.example
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-*.tfvars
-!*.tfvars.example
-.terraform.lock.hcl
+.wrangler/
+.wrangler-dry-run/
+wrangler-output*.json
+.wrangler-output*.json
+.dev.vars
+.dev.vars.*

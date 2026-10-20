@@ -8,6 +8,7 @@
   },
   "scripts": {
     "validate:catalog": "tsx scripts/validate-catalog.ts",
+    "validate:deployment": "tsx scripts/validate-deployment-config.ts",
     "validate:social": "tsx scripts/validate-social-metadata.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run tests/unit",
@@ -29,6 +30,7 @@
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "vite": "^8.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "wrangler": "^4.151.2"
   }
 }
