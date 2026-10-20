@@ -25,12 +25,14 @@ test('a visitor can choose every category and open complete brewing guides', asy
   const latteCoffeeRow = page.locator('.recipe-facts__row').filter({
     has: page.locator('dt').filter({ hasText: /^Ground coffee$/ }),
   });
+  const latteMilkRow = page.locator('.recipe-facts__row').filter({
+    has: page.locator('dt').filter({ hasText: /^Milk$/ }),
+  });
   await expect(latteCoffeeRow.locator('dd')).toHaveText('18 g');
-  await expect(page.getByText('180 mL')).toBeVisible();
-  await expect(page.getByText('60°C')).toBeVisible();
+  await expect(latteMilkRow.locator('dd')).toHaveText('180 mL · 60°C');
   await expect(page.getByText('fine · ~200–500 µm')).toBeVisible();
   await expect(page.getByText(/70–145 mg/)).toBeVisible();
-  await expect(page.getByRole('list', { name: 'Preparation steps' }).getByRole('listitem')).toHaveCount(4);
+  await expect(page.getByRole('list', { name: 'Preparation steps' }).getByRole('listitem')).toHaveCount(6);
 
   await page.goto('/#pour-over');
   await expect(page.getByRole('heading', { level: 1, name: 'Pour-over' })).toBeVisible();

@@ -12,5 +12,5 @@ test('essential guidance survives complete image failure', async ({ page }) => {
   });
   await expect(grindRow.locator('dd')).toHaveText('fine · ~200–500 µm');
   await expect(page.getByText('93°C', { exact: true })).toBeVisible();
-  await expect(page.getByRole('list', { name: 'Preparation steps' }).getByRole('listitem')).toHaveCount(4);
+  await expect(page.getByRole('list', { name: 'Preparation steps' }).getByRole('listitem')).toHaveCount(6);
 });
