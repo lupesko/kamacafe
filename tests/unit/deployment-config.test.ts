@@ -150,6 +150,7 @@ describe('deployment configuration validation', () => {
 
     const performance = workflow.split('\n  performance:')[1]?.split('\n  application:')[0] ?? '';
     expect(performance).toMatch(/runs-on:\s*ubuntu-24\.04/);
+    expect(performance).toMatch(/CHROME_PATH=.*chromium\.executablePath/);
     expect(performance).toMatch(/npm run test:performance/);
     expect(performance).toMatch(/if:\s*always\(\)/);
     expect(performance).toMatch(/actions\/upload-artifact@v4/);
