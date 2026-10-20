@@ -48,6 +48,17 @@ npm run test:e2e
 npm run test:performance
 ```
 
+The required `application` check runs catalog/build validation, browser tests,
+and Lighthouse in isolated jobs whenever application, configuration, catalog,
+or workflow files change. Pull requests limited to `README.md`,
+`CONTRIBUTING.md`, or Markdown files under `specs/` take a documented fast path
+while keeping the required check present. Lighthouse reports are retained as a
+workflow artifact for seven days, including on failure.
+The lab performance score, LCP, and TTI remain visible warning thresholds because
+hosted-runner measurements vary; FCP, total blocking time, accessibility, and
+static asset budgets remain blocking assertions. Production acceptance still
+requires the documented real-device checks.
+
 Do not commit API tokens, `.dev.vars`, Wrangler output, dry-run output, or
 generated bundles.
 

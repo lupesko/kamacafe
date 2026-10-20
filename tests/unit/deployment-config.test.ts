@@ -127,6 +127,66 @@ describe('deployment configuration validation', () => {
     expect(collectDeploymentConfigErrors(input)).toEqual([]);
   });
 
+  it('keeps CI required, docs-aware, isolated, and diagnosable', () => {
+    const root = resolve(import.meta.dirname, '../..');
+    const workflow = readFileSync(resolve(root, '.github/workflows/ci.yml'), 'utf8');
+    const lighthouse = JSON.parse(
+      readFileSync(resolve(root, 'tests/performance/lighthouserc.json'), 'utf8'),
+    ) as {
+      ci: {
+        collect: { url: string[]; numberOfRuns: number };
+        assert: {
+          aggregationMethod: string;
+          assertions: Record<string, [string, Record<string, number>]>;
+        };
+        upload: { target: string; outputDir: string };
+      };
+    };
+
+    expect(workflow).toMatch(/\n  changes:/);
+    expect(workflow).toMatch(/fetch-depth:\s*0/);
+    expect(workflow).toMatch(/README\.md\|CONTRIBUTING\.md\|specs\/\*\.md/);
+    expect(workflow).toMatch(/\n  quality:/);
+    expect(workflow).toMatch(/\n  browser:/);
+    expect(workflow).toMatch(/\n  performance:/);
+    expect(workflow).toMatch(/\n  application:/);
+
+    const performance = workflow.split('\n  performance:')[1]?.split('\n  application:')[0] ?? '';
+    expect(performance).toMatch(/runs-on:\s*ubuntu-24\.04/);
+    expect(performance).toMatch(/npm run test:performance/);
+    expect(performance).toMatch(/if:\s*always\(\)/);
+    expect(performance).toMatch(/actions\/upload-artifact@v4/);
+    expect(performance).toMatch(/lighthouse-results/);
+    expect(performance).toMatch(/GITHUB_STEP_SUMMARY/);
+
+    const application = workflow.split('\n  application:')[1] ?? '';
+    expect(application).toMatch(/needs:\s*\[changes, quality, browser, performance\]/);
+    expect(application).toMatch(/if:\s*always\(\)/);
+    expect(application).toMatch(/CHANGES_RESULT/);
+    expect(application).toMatch(/QUALITY_RESULT/);
+    expect(application).toMatch(/BROWSER_RESULT/);
+    expect(application).toMatch(/PERFORMANCE_RESULT/);
+
+    expect(lighthouse.ci.collect.url).toEqual(['http://localhost/']);
+    expect(lighthouse.ci.collect.numberOfRuns).toBe(3);
+    expect(lighthouse.ci.assert.aggregationMethod).toBe('optimistic');
+    expect(lighthouse.ci.assert.assertions['categories:performance']?.[0]).toBe('warn');
+    expect(lighthouse.ci.assert.assertions['first-contentful-paint']).toEqual([
+      'error',
+      { maxNumericValue: 3000 },
+    ]);
+    expect(lighthouse.ci.assert.assertions['largest-contentful-paint']?.[0]).toBe('warn');
+    expect(lighthouse.ci.assert.assertions['total-blocking-time']).toEqual([
+      'error',
+      { maxNumericValue: 300 },
+    ]);
+    expect(lighthouse.ci.assert.assertions.interactive?.[0]).toBe('warn');
+    expect(lighthouse.ci.upload).toEqual({
+      target: 'filesystem',
+      outputDir: 'lighthouse-results',
+    });
+  });
+
   it('enforces build-once candidate upload and exact manual promotion in the deploy workflow', () => {
     const root = resolve(import.meta.dirname, '../..');
     const workflow = readFileSync(resolve(root, '.github/workflows/deploy.yml'), 'utf8');
