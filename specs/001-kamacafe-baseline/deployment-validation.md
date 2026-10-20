@@ -132,11 +132,11 @@ Recorded 2026-10-19:
 | Deployment validation | PASS | 18 deployable files, 14,381,514 bytes, 6 header rules |
 | Wrangler dry run | PASS | Wrangler 4.151.2 read 20 static assets, found no bindings, and exited without upload |
 | GitHub Actions validation | PASS | actionlint 1.7.12 accepted CI, deployment, and rollback workflows |
-| Playwright response checks | PASS | 12 non-browser response/social metadata checks passed |
-| Playwright browser checks | ENVIRONMENT BLOCKED | 100 browser cases could not launch because Playwright 1.58.2 browser build 1243 was absent; download retried inside and outside the sandbox but the machine TLS chain returned `SELF_SIGNED_CERT_IN_CHAIN` |
-| Lighthouse | ENVIRONMENT BLOCKED | LHCI healthcheck could not find Chrome; no assertion or budget was disabled |
+| Playwright, axe, and media-failure checks | PASS IN CI | All 112 cases passed across Mobile Safari, Mobile Chrome, Desktop Chrome, and Desktop WebKit in GitHub Actions run `39365996829`; local browser download remained blocked by the machine TLS chain |
+| Lighthouse | PASS IN CI | Performance assertions and budgets passed in GitHub Actions run `39365996829`; local LHCI remained blocked because Chrome was unavailable |
 | Active provider/secret audit | PASS | No active legacy-provider command/reference or secret-like material found in workflows, scripts, configuration, public files, or `dist/` |
 | Whitespace validation | PASS | `git diff --check` reported no errors |
 
-CI continues to install the locked Playwright browsers and run the full suite on
-Ubuntu. A CI run remains required before production approval.
+CI installs the locked Playwright browsers and runs the full suite on Ubuntu.
+GitHub Actions run `39365996829` passed before the implementation PR was merged;
+the protected `application` check remains required for subsequent revisions.
