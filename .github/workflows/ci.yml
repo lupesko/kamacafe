@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VITE_SITE_URL: https://kamacafe.lupesko.com
-      WRANGLER_LOG_PATH: ${{ runner.temp }}/wrangler.log
+      WRANGLER_LOG_PATH: ${{ github.workspace }}/.wrangler.log
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

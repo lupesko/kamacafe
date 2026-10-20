@@ -131,6 +131,7 @@ Recorded 2026-10-19:
 | Strict social validation | PASS | Canonical origin and 1200×630 PNG validated |
 | Deployment validation | PASS | 18 deployable files, 14,381,514 bytes, 6 header rules |
 | Wrangler dry run | PASS | Wrangler 4.151.2 read 20 static assets, found no bindings, and exited without upload |
+| GitHub Actions validation | PASS | actionlint 1.7.12 accepted CI, deployment, and rollback workflows |
 | Playwright response checks | PASS | 12 non-browser response/social metadata checks passed |
 | Playwright browser checks | ENVIRONMENT BLOCKED | 100 browser cases could not launch because Playwright 1.58.2 browser build 1243 was absent; download retried inside and outside the sandbox but the machine TLS chain returned `SELF_SIGNED_CERT_IN_CHAIN` |
 | Lighthouse | ENVIRONMENT BLOCKED | LHCI healthcheck could not find Chrome; no assertion or budget was disabled |
