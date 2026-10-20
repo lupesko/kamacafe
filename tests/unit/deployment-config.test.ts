@@ -135,7 +135,10 @@ describe('deployment configuration validation', () => {
     ) as {
       ci: {
         collect: { url: string[]; numberOfRuns: number };
-        assert: { aggregationMethod: string };
+        assert: {
+          aggregationMethod: string;
+          assertions: Record<string, [string, Record<string, number>]>;
+        };
         upload: { target: string; outputDir: string };
       };
     };
@@ -150,7 +153,6 @@ describe('deployment configuration validation', () => {
 
     const performance = workflow.split('\n  performance:')[1]?.split('\n  application:')[0] ?? '';
     expect(performance).toMatch(/runs-on:\s*ubuntu-24\.04/);
-    expect(performance).toMatch(/CHROME_PATH=.*chromium\.executablePath/);
     expect(performance).toMatch(/npm run test:performance/);
     expect(performance).toMatch(/if:\s*always\(\)/);
     expect(performance).toMatch(/actions\/upload-artifact@v4/);
@@ -168,6 +170,17 @@ describe('deployment configuration validation', () => {
     expect(lighthouse.ci.collect.url).toEqual(['http://localhost/']);
     expect(lighthouse.ci.collect.numberOfRuns).toBe(3);
     expect(lighthouse.ci.assert.aggregationMethod).toBe('optimistic');
+    expect(lighthouse.ci.assert.assertions['categories:performance']?.[0]).toBe('warn');
+    expect(lighthouse.ci.assert.assertions['first-contentful-paint']).toEqual([
+      'error',
+      { maxNumericValue: 3000 },
+    ]);
+    expect(lighthouse.ci.assert.assertions['largest-contentful-paint']?.[0]).toBe('warn');
+    expect(lighthouse.ci.assert.assertions['total-blocking-time']).toEqual([
+      'error',
+      { maxNumericValue: 300 },
+    ]);
+    expect(lighthouse.ci.assert.assertions.interactive?.[0]).toBe('warn');
     expect(lighthouse.ci.upload).toEqual({
       target: 'filesystem',
       outputDir: 'lighthouse-results',

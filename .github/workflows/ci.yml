@@ -105,10 +105,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Use the lockfile-pinned Chromium
-        shell: bash
-        run: |
-          node -e 'const { chromium } = require("playwright"); require("node:fs").appendFileSync(process.env.GITHUB_ENV, `CHROME_PATH=${chromium.executablePath()}\n`);'
       - run: npm run build
       - name: Run Lighthouse budgets
         run: npm run test:performance
@@ -127,13 +123,14 @@ jobs:
           {
             echo '## Lighthouse measurements'
             echo
-            echo '| URL | Performance | Benchmark index | LCP (ms) | TBT (ms) | TTI (ms) |'
-            echo '|---|---:|---:|---:|---:|---:|'
+            echo '| URL | Performance | Benchmark index | FCP (ms) | LCP (ms) | TBT (ms) | TTI (ms) |'
+            echo '|---|---:|---:|---:|---:|---:|---:|'
             for report in "${reports[@]}"; do
               jq -r '[
                 (.requestedUrl // .finalUrl),
                 (((.categories.performance.score // 0) * 100) | round | tostring),
                 ((.environment.benchmarkIndex // 0) | round | tostring),
+                ((.audits["first-contentful-paint"].numericValue // 0) | round | tostring),
                 ((.audits["largest-contentful-paint"].numericValue // 0) | round | tostring),
                 ((.audits["total-blocking-time"].numericValue // 0) | round | tostring),
                 ((.audits.interactive.numericValue // 0) | round | tostring)
