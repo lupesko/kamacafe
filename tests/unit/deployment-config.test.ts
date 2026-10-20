@@ -136,6 +136,7 @@ describe('deployment configuration validation', () => {
       ci: {
         collect: { url: string[]; numberOfRuns: number };
         assert: { aggregationMethod: string };
+        upload: { target: string; outputDir: string };
       };
     };
 
@@ -152,7 +153,7 @@ describe('deployment configuration validation', () => {
     expect(performance).toMatch(/npm run test:performance/);
     expect(performance).toMatch(/if:\s*always\(\)/);
     expect(performance).toMatch(/actions\/upload-artifact@v4/);
-    expect(performance).toMatch(/\.lighthouseci/);
+    expect(performance).toMatch(/lighthouse-results/);
     expect(performance).toMatch(/GITHUB_STEP_SUMMARY/);
 
     const application = workflow.split('\n  application:')[1] ?? '';
@@ -166,6 +167,10 @@ describe('deployment configuration validation', () => {
     expect(lighthouse.ci.collect.url).toEqual(['http://localhost/']);
     expect(lighthouse.ci.collect.numberOfRuns).toBe(3);
     expect(lighthouse.ci.assert.aggregationMethod).toBe('optimistic');
+    expect(lighthouse.ci.upload).toEqual({
+      target: 'filesystem',
+      outputDir: 'lighthouse-results',
+    });
   });
 
   it('enforces build-once candidate upload and exact manual promotion in the deploy workflow', () => {

@@ -113,7 +113,7 @@ jobs:
         shell: bash
         run: |
           shopt -s nullglob
-          reports=(.lighthouseci/*.report.json)
+          reports=(lighthouse-results/*.report.json)
           if (( ${#reports[@]} == 0 )); then
             echo '## Lighthouse' >> "$GITHUB_STEP_SUMMARY"
             echo 'No Lighthouse reports were produced.' >> "$GITHUB_STEP_SUMMARY"
@@ -140,7 +140,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .lighthouseci/
+          path: lighthouse-results/
           if-no-files-found: warn
           retention-days: 7
 
