@@ -1,6 +1,7 @@
 # KamaCafe
 
 KamaCafe is a mobile-first, catalog-driven guide for making coffee. It is a static Preact application: `catalog.json` supplies every category and recipe, while browser hash routes make each guide shareable.
+KamaCafe was built with GitHub's [SpecKit]([url](https://github.com/github/spec-kit)) SDD (Spec Driven Development) and OpenAI Codex.
 
 ## Run locally
 
