@@ -7,10 +7,9 @@ them from the repository root after the implementation tasks are complete.
 
 - nvm, Node.js 24 LTS, and npm
 - A current Playwright-supported host for Chromium and WebKit
-- Terraform 1.x for infrastructure validation
-- For deployment only: an AWS account, a Cloudflare-managed zone, a pre-created
-  encrypted/versioned S3 Terraform-state bucket, GitHub repository OIDC
-  configuration, and a scoped Cloudflare API token
+- For deployment only: an active Cloudflare zone for `lupesko.com`, an empty
+  `kamacafe` Worker with Version URLs and the Custom Domain enabled, a per-Worker
+  Editor token, and a reviewer-gated GitHub `production` environment
 
 ## Install and validate source data
 
@@ -89,22 +88,21 @@ Expected result: repeated mobile Lighthouse runs score at least 90 for
 performance and meet the configured asset budgets. Essential text guidance must
 be usable within 3 seconds on the agreed simulated 4G profile. Confirm the
 specification's 9-of-10 threshold against the deployed production hostname,
-because local CI timing does not include Cloudflare and S3 behavior.
+because local CI timing does not include Cloudflare edge behavior.
 
-## Validate infrastructure without applying it
+## Validate managed static hosting without publishing
 
 ```bash
-terraform -chdir=infra init -backend=false
-terraform -chdir=infra fmt -check
-terraform -chdir=infra validate
-terraform -chdir=infra plan -var-file=production.tfvars
+VITE_SITE_URL=https://kamacafe.lupesko.com npm run build
+npm run validate:social -- --production
+npm run validate:deployment
+WRANGLER_LOG_PATH=/tmp/kamacafe-wrangler.log npx wrangler deploy --dry-run --outdir .wrangler-dry-run
 ```
 
-Expected plan: one public-read S3 website bucket named for the site hostname, a
-matching proxied Cloudflare CNAME, hostname-scoped Flexible TLS/HTTPS redirect
-configuration, cache rules, and least-privilege deployment outputs. The state
-file and all credentials remain outside the repository. See
-[contracts/deployment-contract.md](./contracts/deployment-contract.md).
+Expected result: Wrangler resolves `dist/` as static assets with no runtime
+entry point; deployment validation confirms the exact Custom Domain, real-path
+404 behavior, asset limits, cache policy, security headers, and no active legacy
+provider dependency. No upload or production mutation occurs.
 
 ## Production smoke test
 
@@ -113,13 +111,13 @@ After the authorized deployment workflow completes:
 1. Open the HTTPS custom domain and confirm Cloudflare serves the site.
 2. Repeat direct links for `/`, `/#category-espresso-drink`, and `/#espresso`.
 3. Verify the response headers revalidate `index.html` and cache static assets
-   according to the deployment contract.
+   according to `public/_headers`.
 4. Complete one espresso-based and one brewed-coffee guide on a real phone.
 5. Run ten cold mobile measurements and record whether essential guidance is
    usable within 3 seconds in at least nine runs.
 
-Record the reviewed local plan and production results in
+Record the candidate version ID/URL and production results in
 `deployment-validation.md`, and the real-device, performance, Safari, and
-VoiceOver results in `production-smoke.md`. Production apply remains blocked
-until the actual hostname, AWS region, Cloudflare zone, OIDC provider, and
-remote-state inputs replace the placeholders in `infra/production.tfvars.example`.
+VoiceOver results in `production-smoke.md`. Follow
+[`../003-managed-static-deployment/quickstart.md`](../003-managed-static-deployment/quickstart.md)
+for the one-time Cloudflare/GitHub setup and exact-version promotion sequence.

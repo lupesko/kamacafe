@@ -12,7 +12,7 @@ Open a [GitHub issue](https://github.com/lupesko/kamacafe/issues) and include:
 - a reliable source for recipe or caffeine changes when applicable;
 - the device and browser for interface problems.
 
-Never include credentials, Terraform state, API tokens, or private account details.
+Never include credentials, API tokens, Wrangler output, or private account details.
 
 ## Propose a recipe
 
@@ -40,12 +40,32 @@ npx playwright install chromium webkit
 npm run validate:catalog
 npm run typecheck
 npm test
-npm run build
+VITE_SITE_URL=https://kamacafe.lupesko.com npm run build
+npm run validate:social -- --production
+npm run validate:deployment
+WRANGLER_LOG_PATH=/tmp/kamacafe-wrangler.log npx wrangler deploy --dry-run --outdir .wrangler-dry-run
 npm run test:e2e
 npm run test:performance
 ```
 
-For Terraform changes, also run the commands in `infra/README.md`. Do not commit `.tfvars`, plans, state, credentials, or generated bundles.
+Do not commit API tokens, `.dev.vars`, Wrangler output, dry-run output, or
+generated bundles.
+
+## Release and rollback changes
+
+Production uses one immutable Cloudflare Worker version per candidate. The
+candidate job builds once and exposes a Version URL; a reviewer approves the
+protected `production` job only after checking that exact URL and revision. The
+promotion job must deploy the captured ID at 100% and must never rebuild or
+select “latest.” Rollback targets an explicit previously deployed version ID
+and reruns the same public verification.
+
+The recurring token is stored only as `CLOUDFLARE_API_TOKEN`, is scoped to the
+`kamacafe` Worker, and can upload and deploy. Rotate or revoke it in Cloudflare,
+replace the GitHub secret, and run a new candidate check; never log either token
+value. Cloudflare platform caching, browser caching, and social-network preview
+caching are independent. A successful rollback changes the active platform
+version but cannot erase a browser or social crawler's cached stable image.
 
 ## Submit a pull request
 

@@ -166,29 +166,34 @@ Task T007: Generate and inspect public/images/social-preview.png
 
 **Purpose**: Complete the remaining operator setup, deploy the approved feature through the existing AWS/GitHub/Cloudflare path, and verify the public metadata and image.
 
+> **Superseded 2026-10-19:** Tasks T020-T032 below are retained as historical
+> planning evidence but MUST NOT be executed. Their managed-static replacements
+> are `specs/003-managed-static-deployment/tasks.md` T012, T018-T019, and
+> T027-T029.
+
 **Independent Test**: From the public HTTPS hostname, verify the initial HTML contains the contract values, the share image returns HTTP 200 as `image/png` at 1200×630, and at least two Open Graph inspectors plus one large-image card inspector show the approved preview after any needed cache refresh.
 
 ### Operator setup — AWS
 
-- [ ] T020 Choose the canonical lowercase hostname and AWS region; confirm the hostname belongs to a Cloudflare-managed zone and is available as a globally unique S3 bucket name, then record the non-secret values in `specs/001-kamacafe-baseline/deployment-validation.md` for entry into `infra/production.tfvars` in T027.
-- [ ] T021 In AWS, create or designate a separate Terraform state S3 bucket in the state region; enable versioning, server-side encryption, and all S3 public-access blocks, and grant only the Terraform bootstrap role access to the configured state key and its `.tflock` lock object. Do not reuse the public website bucket; record the bucket/region and redacted access-check result in `specs/001-kamacafe-baseline/deployment-validation.md`.
-- [ ] T022 In AWS IAM, verify or create the GitHub Actions OIDC identity provider for `https://token.actions.githubusercontent.com` with audience `sts.amazonaws.com`; record its provider ARN in `specs/001-kamacafe-baseline/deployment-validation.md` for entry into `infra/production.tfvars` in T027.
-- [ ] T023 In AWS IAM, create or designate the Terraform bootstrap role used by `AWS_TERRAFORM_ROLE_ARN`; trust only this repository's GitHub Actions OIDC subject for the `production` environment, and grant only the S3/IAM permissions needed to manage this site's Terraform resources plus the state bucket/key. Record the role ARN in `specs/001-kamacafe-baseline/deployment-validation.md`; do not create or store long-lived AWS access keys.
+- [~] T020 Superseded hostname/AWS-region selection task; canonical hostname is now `kamacafe.lupesko.com` and no AWS region is used.
+- [~] T021 Superseded Terraform-state bucket task; the active path has no Terraform state.
+- [~] T022 Superseded AWS OIDC provider task; the active path has no AWS identity.
+- [~] T023 Superseded AWS bootstrap-role task; the active path has no AWS role.
 
 ### Operator setup — Cloudflare and GitHub
 
-- [ ] T024 In Cloudflare, confirm the chosen zone is Active and Universal SSL is available; record its zone ID in `specs/001-kamacafe-baseline/deployment-validation.md` for entry into `infra/production.tfvars` in T027, and confirm no existing DNS record conflicts with Terraform's proxied CNAME for the chosen hostname. Resolve any conflict deliberately before applying.
-- [ ] T025 In Cloudflare, create an API token scoped only to the chosen zone with DNS Edit, Rulesets Edit, and Cache Purge permissions; store the token only as the `CLOUDFLARE_API_TOKEN` secret in the GitHub `production` environment, never in a variable, tfvars file, plan, log, or repository file, and record the permission scope (not token value) in `specs/001-kamacafe-baseline/deployment-validation.md`.
-- [ ] T026 In GitHub repository Settings → Environments, create/protect the `production` environment and add the workflow's non-secret variables `SITE_HOSTNAME`, `AWS_REGION`, `AWS_TERRAFORM_ROLE_ARN`, `GITHUB_OIDC_PROVIDER_ARN`, `CLOUDFLARE_ZONE_ID`, `TERRAFORM_STATE_BUCKET`, `TERRAFORM_STATE_KEY`, and `TERRAFORM_STATE_REGION`; confirm the secret from T025 is available to this environment. Record variable names and redacted setup evidence in `specs/001-kamacafe-baseline/deployment-validation.md`.
-- [ ] T027 Copy `infra/production.tfvars.example` to ignored `infra/production.tfvars`, fill in the real hostname, AWS region, Cloudflare zone ID, OIDC provider ARN, and state bucket/key/region, and verify no example or placeholder values remain; keep the API token out of this file.
+- [~] T024 Superseded DNS/CNAME task; T012 creates a Worker Custom Domain with managed DNS and TLS.
+- [~] T025 Superseded zone-token task; T018 uses a per-Worker Editor token.
+- [~] T026 Superseded environment-variable list; T018 requires only `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, branch protection, and the reviewed `production` environment.
+- [~] T027 Superseded tfvars task; no local production variable file is used.
 
 ### Provision, deploy, and verify
 
-- [ ] T028 From the repository root, run `terraform -chdir=infra fmt -check`, `terraform -chdir=infra init` with the documented S3 backend values, `terraform -chdir=infra validate`, and `terraform -chdir=infra plan -var-file=infra/production.tfvars`; inspect the plan for the hostname-named public-read website bucket, GitHub deployment role, proxied CNAME, HTTPS redirect, Flexible origin setting, and cache rules, then record the redacted plan summary in `specs/001-kamacafe-baseline/deployment-validation.md`.
-- [ ] T029 Reconcile the infrastructure review requirement with `.github/workflows/deploy.yml`: make the Terraform plan available for review before apply and ensure apply uses that same saved plan, while keeping AWS/Cloudflare credentials and Terraform state private; update `infra/README.md` and `specs/001-kamacafe-baseline/deployment-validation.md` with the approval sequence.
-- [ ] T030 Confirm the protected `production` environment approval rule is active, then trigger the deploy workflow from the intended `main` revision and approve only after checking the source revision, successful CI, and reviewed Terraform plan; verify Terraform apply and image-before-HTML publication complete in `.github/workflows/deploy.yml`, and record the non-secret outputs in `specs/001-kamacafe-baseline/deployment-validation.md`.
-- [ ] T031 Fetch `https://SITE_HOSTNAME/` and `https://SITE_HOSTNAME/images/social-preview.png`; verify the canonical/social URLs use the production hostname, all fields match `specs/002-add-social-sharing/contracts/social-preview-contract.md`, the image returns HTTP 200 with `image/png` and 1200×630 dimensions, and the entry/image cache behavior matches `infra/README.md`. Record results in `specs/001-kamacafe-baseline/deployment-validation.md`.
-- [ ] T032 Submit the public root URL to two Open Graph inspectors and one large-image card inspector; request re-scrapes if their cached card is stale, confirm the approved title, description, and image, and record inspector names, check time, deployed revision, and cache refreshes in `specs/001-kamacafe-baseline/production-smoke.md`.
+- [~] T028 Superseded infrastructure plan; T027 validates the Workers artifact and dry run.
+- [~] T029 Superseded plan/apply workflow; T016 uploads a candidate and promotes the exact reviewed version.
+- [~] T030 Superseded production apply; T019 performs reviewed exact-version promotion.
+- [~] T031 Superseded hostname placeholder smoke check; T019 and T028 verify `https://kamacafe.lupesko.com`.
+- [~] T032 Superseded inspector task; T029 retains the same social-platform acceptance under the new release ID.
 
 ### Deployment dependencies and execution order
 

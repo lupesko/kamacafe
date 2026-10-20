@@ -1,0 +1,69 @@
+name: Roll back production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_id:
+        description: Previously deployed Worker version ID to restore
+        required: true
+        type: string
+      reason:
+        description: Short operational reason for the rollback
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: production-traffic
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: https://kamacafe.lupesko.com
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TARGET_VERSION: ${{ inputs.version_id }}
+      ROLLBACK_REASON: ${{ inputs.reason }}
+      WRANGLER_LOG_PATH: ${{ github.workspace }}/.wrangler.log
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Validate rollback request and capture current version
+        id: before
+        run: |
+          if [[ ! "$TARGET_VERSION" =~ ^[0-9a-fA-F-]{36}$ ]]; then
+            echo 'version_id must be a Worker UUID.' >&2
+            exit 1
+          fi
+          if (( ${#ROLLBACK_REASON} < 5 || ${#ROLLBACK_REASON} > 120 )) || [[ ! "$ROLLBACK_REASON" =~ ^[A-Za-z0-9][A-Za-z0-9._,:/\ -]+$ ]]; then
+            echo 'reason must be 5-120 characters of plain operational text.' >&2
+            exit 1
+          fi
+          npx wrangler deployments list --json > "$RUNNER_TEMP/deployments-before.json"
+          current_version="$(jq -er 'sort_by(.created_on) | last | .versions[] | select(.percentage == 100) | .version_id' "$RUNNER_TEMP/deployments-before.json")"
+          echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
+          echo "started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+      - name: Restore the exact known-good version
+        run: npx wrangler rollback "$TARGET_VERSION" --message "$ROLLBACK_REASON"
+      - name: Verify restored production
+        run: npx tsx scripts/verify-production-deployment.ts --hostname kamacafe.lupesko.com --expected-version "$TARGET_VERSION"
+      - name: Record rollback evidence
+        run: |
+          {
+            echo '## Production rollback'
+            echo
+            echo "- From version: \`${{ steps.before.outputs.current_version }}\`"
+            echo "- To version: \`$TARGET_VERSION\`"
+            echo "- Started: ${{ steps.before.outputs.started_at }}"
+            echo "- Verified: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo '- Reason supplied: yes (content omitted from summary)'
+          } >> "$GITHUB_STEP_SUMMARY"
