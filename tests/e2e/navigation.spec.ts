@@ -22,7 +22,10 @@ test('a visitor can choose every category and open complete brewing guides', asy
   await page.goto('/#category-espresso-drink');
   await page.getByRole('link', { name: /Latte/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Latte' })).toBeVisible();
-  await expect(page.getByText('18 g')).toBeVisible();
+  const latteCoffeeRow = page.locator('.recipe-facts__row').filter({
+    has: page.locator('dt').filter({ hasText: /^Ground coffee$/ }),
+  });
+  await expect(latteCoffeeRow.locator('dd')).toHaveText('18 g');
   await expect(page.getByText('180 mL')).toBeVisible();
   await expect(page.getByText('60°C')).toBeVisible();
   await expect(page.getByText('fine · ~200–500 µm')).toBeVisible();

@@ -51,6 +51,20 @@ TTL. The deployment purge includes this path on every release so an updated
 card cannot remain stale at Cloudflare. Social networks keep independent caches;
 use their preview inspectors or re-scrape controls after origin/CDN validation.
 
+### Legacy production workflow status
+
+The legacy S3 deployment workflow is manual-only while production settings are
+being prepared; pushes to `main` run CI without attempting a production deploy.
+Before a manual run, configure the `production` environment values listed in
+`specs/002-add-social-sharing/tasks.md`. The workflow now reports missing value
+names before building and does not print secret values.
+
+The current legacy workflow still creates and applies its Terraform plan in one
+run. Do not use that path until a plan-review-before-apply gate is implemented;
+see T029 in `specs/002-add-social-sharing/tasks.md`. The in-progress managed
+static deployment feature in `specs/003-managed-static-deployment/` is intended
+to replace this legacy path with previewed releases and explicit promotion.
+
 ## Security and transport
 
 The website bucket is intentionally public-read for objects only. Anonymous listing and writes remain denied. Cloudflare terminates public HTTPS, but the Cloudflare-to-S3 website hop uses HTTP because S3 website endpoints do not support TLS. This is acceptable only while the origin contains public, read-only assets with no accounts, credentials, or personalized traffic.
