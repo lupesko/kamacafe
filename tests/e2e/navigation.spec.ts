@@ -36,8 +36,10 @@ test('a visitor can choose every category and open complete brewing guides', asy
 
   await page.goto('/#pour-over');
   await expect(page.getByRole('heading', { level: 1, name: 'Pour-over' })).toBeVisible();
-  await expect(page.getByText('240 mL')).toBeVisible();
-  await expect(page.getByText('94°C').first()).toBeVisible();
+  const pourOverWaterRow = page.locator('.recipe-facts__row').filter({
+    has: page.locator('dt').filter({ hasText: /^Water$/ }),
+  });
+  await expect(pourOverWaterRow.locator('dd')).toHaveText('240 mL · 94°C');
   await expect(page.getByText('medium-fine · ~500–800 µm')).toBeVisible();
   await expect(page.getByText(/140–230 mg/)).toBeVisible();
   await expect(page.getByText('Milk', { exact: true })).toHaveCount(0);
