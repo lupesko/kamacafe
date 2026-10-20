@@ -8,12 +8,81 @@ on:
 permissions:
   contents: read
 
+env:
+  VITE_SITE_URL: https://kamacafe.lupesko.com
+  WRANGLER_LOG_PATH: ${{ github.workspace }}/.wrangler.log
+
 jobs:
-  application:
+  changes:
     runs-on: ubuntu-latest
-    env:
-      VITE_SITE_URL: https://kamacafe.lupesko.com
-      WRANGLER_LOG_PATH: ${{ github.workspace }}/.wrangler.log
+    outputs:
+      run_full: ${{ steps.scope.outputs.run_full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Classify the pull request scope
+        id: scope
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            echo 'run_full=true' >> "$GITHUB_OUTPUT"
+            echo 'Full CI required for a push to main.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          mapfile -t changed_files < <(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if (( ${#changed_files[@]} == 0 )); then
+            echo 'No changed files were detected; failing closed with full CI.'
+            echo 'run_full=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          run_full=false
+          for path in "${changed_files[@]}"; do
+            case "$path" in
+              README.md|CONTRIBUTING.md|specs/*.md)
+                ;;
+              *)
+                run_full=true
+                break
+                ;;
+            esac
+          done
+
+          echo "run_full=$run_full" >> "$GITHUB_OUTPUT"
+          if [[ "$run_full" == "true" ]]; then
+            echo 'Application-affecting files changed; full CI is required.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Documentation-only change; application jobs are intentionally skipped.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  quality:
+    needs: changes
+    if: needs.changes.outputs.run_full == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:catalog
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run validate:social -- --production
+      - run: npm run validate:deployment
+      - run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
+
+  browser:
+    needs: changes
+    if: needs.changes.outputs.run_full == 'true'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,12 +91,98 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium webkit
-      - run: npm run validate:catalog
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
-      - run: npm run validate:social -- --production
-      - run: npm run validate:deployment
-      - run: npx wrangler deploy --dry-run --outdir .wrangler-dry-run
-      - run: npm run test:performance
       - run: npm run test:e2e
+
+  performance:
+    needs: changes
+    if: needs.changes.outputs.run_full == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Run Lighthouse budgets
+        run: npm run test:performance
+      - name: Summarize Lighthouse measurements
+        if: always()
+        shell: bash
+        run: |
+          shopt -s nullglob
+          reports=(.lighthouseci/*.report.json)
+          if (( ${#reports[@]} == 0 )); then
+            echo '## Lighthouse' >> "$GITHUB_STEP_SUMMARY"
+            echo 'No Lighthouse reports were produced.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          {
+            echo '## Lighthouse measurements'
+            echo
+            echo '| URL | Performance | LCP (ms) | TBT (ms) | TTI (ms) |'
+            echo '|---|---:|---:|---:|---:|'
+            for report in "${reports[@]}"; do
+              jq -r '[
+                (.requestedUrl // .finalUrl),
+                (((.categories.performance.score // 0) * 100) | round | tostring),
+                ((.audits["largest-contentful-paint"].numericValue // 0) | round | tostring),
+                ((.audits["total-blocking-time"].numericValue // 0) | round | tostring),
+                ((.audits.interactive.numericValue // 0) | round | tostring)
+              ] | "| " + join(" | ") + " |"' "$report"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .lighthouseci/
+          if-no-files-found: warn
+          retention-days: 7
+
+  application:
+    needs: [changes, quality, browser, performance]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce applicable CI results
+        shell: bash
+        env:
+          RUN_FULL: ${{ needs.changes.outputs.run_full }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          BROWSER_RESULT: ${{ needs.browser.result }}
+          PERFORMANCE_RESULT: ${{ needs.performance.result }}
+        run: |
+          if [[ "$CHANGES_RESULT" != "success" ]]; then
+            echo "Change classification failed: $CHANGES_RESULT" >&2
+            exit 1
+          fi
+
+          if [[ "$RUN_FULL" == "false" ]]; then
+            echo 'Documentation-only change: required application check passed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if [[ "$RUN_FULL" != "true" ]]; then
+            echo "Unexpected change classification: $RUN_FULL" >&2
+            exit 1
+          fi
+
+          failed=false
+          for result in "$QUALITY_RESULT" "$BROWSER_RESULT" "$PERFORMANCE_RESULT"; do
+            if [[ "$result" != "success" ]]; then
+              failed=true
+            fi
+          done
+
+          if [[ "$failed" == "true" ]]; then
+            echo "Required jobs: quality=$QUALITY_RESULT browser=$BROWSER_RESULT performance=$PERFORMANCE_RESULT" >&2
+            exit 1
+          fi
+
+          echo 'Quality, browser, and performance jobs passed.' >> "$GITHUB_STEP_SUMMARY"
