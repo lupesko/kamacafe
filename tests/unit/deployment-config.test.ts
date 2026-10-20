@@ -139,7 +139,10 @@ describe('deployment configuration validation', () => {
     expect(workflow).toMatch(/parse-wrangler-output\.ts/);
 
     const promotion = workflow.split('\n  promote:')[1] ?? '';
+    const candidate = workflow.split('\n  candidate:')[1]?.split('\n  promote:')[0] ?? '';
     expect(promotion).toMatch(/needs:\s*candidate/);
+    expect(candidate).not.toMatch(/concurrency:/);
+    expect(promotion).toMatch(/concurrency:[\s\S]*group:\s*production-traffic/);
     expect(promotion).toMatch(/environment:[\s\S]*name:\s*production/);
     expect(promotion).toMatch(/wrangler versions deploy[^\n]*version_id[^\n]*@100%[^\n]*--yes/);
     expect(promotion).not.toMatch(/npm run build|wrangler versions upload/);
@@ -151,8 +154,9 @@ describe('deployment configuration validation', () => {
     const workflow = readFileSync(resolve(root, '.github/workflows/rollback.yml'), 'utf8');
     expect(workflow).toMatch(/workflow_dispatch:[\s\S]*version_id:[\s\S]*required:\s*true[\s\S]*reason:[\s\S]*required:\s*true/);
     expect(workflow).toMatch(/environment:[\s\S]*name:\s*production/);
+    expect(workflow).toMatch(/rollback:[\s\S]*concurrency:[\s\S]*group:\s*production-traffic/);
     expect(workflow).toMatch(/wrangler deployments list --json/);
-    expect(workflow).toMatch(/wrangler rollback "\$TARGET_VERSION" --message "\$ROLLBACK_REASON" --yes/);
+    expect(workflow).toMatch(/wrangler rollback "\$TARGET_VERSION" --message "\$ROLLBACK_REASON"/);
     expect(workflow).toMatch(/verify-production-deployment\.ts[^\n]*--expected-version "\$TARGET_VERSION"/);
     expect(workflow).not.toMatch(/npm run build|wrangler versions upload/);
   });
