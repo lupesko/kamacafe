@@ -80,6 +80,11 @@ for (const width of phoneWidths) {
       const hero = page.locator('.drink-hero');
       const facts = hero.locator('.hero-facts');
       const image = hero.locator('.drink-hero__image');
+
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(drink.name);
+      await expect(image).toHaveAttribute('src', `/images/${drink.id}.png`);
+      await expect(hero).toBeVisible();
+      await expect(facts).toBeVisible();
       await expect(image).toBeVisible();
 
       const [heroBox, factsBox, imageBox] = await Promise.all([
