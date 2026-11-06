@@ -16,7 +16,7 @@ test('Dark is the fresh-load default and switching roast updates facts and local
   await expect(page.getByRole('radio', { name: 'Light' })).not.toBeChecked();
   await expect(page.getByRole('radio', { name: 'Medium' })).not.toBeChecked();
   await expect(factRow(page, 'Water').locator('dd')).toHaveText('240 mL · 90°C');
-  await expect(factRow(page, 'Grind').locator('dd')).toHaveText('medium · ~700–1000 µm');
+  await expect(factRow(page, 'Grind').locator('dd')).toHaveText('medium · ~700–1,000 µm');
   await expect(page.getByRole('list', { name: 'Preparation steps' })).toContainText('90°C');
 
   await page.getByRole('radio', { name: 'Light' }).check();
@@ -102,12 +102,12 @@ const matrix: Record<string, Record<RoastLevel, { temperature: string; grind: st
   'pour-over': {
     light: { temperature: '96°C', grind: 'fine-to-medium-fine · ~400–700 µm' },
     medium: { temperature: '94°C', grind: 'medium-fine · ~500–800 µm' },
-    dark: { temperature: '90°C', grind: 'medium · ~700–1000 µm' },
+    dark: { temperature: '90°C', grind: 'medium · ~700–1,000 µm' },
   },
   'french-press': {
-    light: { temperature: '96°C', grind: 'medium-coarse · ~800–1100 µm' },
-    medium: { temperature: '94°C', grind: 'coarse · ~1000–1400 µm' },
-    dark: { temperature: '90°C', grind: 'coarse-to-very-coarse · ~1200–1600 µm' },
+    light: { temperature: '96°C', grind: 'medium-coarse · ~800–1,100 µm' },
+    medium: { temperature: '94°C', grind: 'coarse · ~1,000–1,400 µm' },
+    dark: { temperature: '90°C', grind: 'coarse-to-very-coarse · ~1,200–1,600 µm' },
   },
   turkish: {
     light: { temperature: '20°C', grind: 'extra-fine · ~50–200 µm' },
@@ -181,7 +181,7 @@ test('rapid selection leaves the final checked option, explanations, facts, and 
   await expect(page.getByRole('radio', { name: 'Dark' })).toBeChecked();
   await expect(page.getByText('Dark roast starting point')).toBeVisible();
   await expect(factRow(page, 'Water').locator('dd')).toHaveText('240 mL · 90°C');
-  await expect(factRow(page, 'Grind').locator('dd')).toHaveText('coarse-to-very-coarse · ~1200–1600 µm');
+  await expect(factRow(page, 'Grind').locator('dd')).toHaveText('coarse-to-very-coarse · ~1,200–1,600 µm');
   await expect(page.getByRole('list', { name: 'Preparation steps' })).toContainText('90°C');
   await expect(page.getByRole('list', { name: 'Preparation steps' })).not.toContainText('94°C');
   await expect(page.getByRole('list', { name: 'Preparation steps' })).not.toContainText('96°C');
