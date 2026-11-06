@@ -130,7 +130,9 @@ test('every published drink renders the exact method matrix for all three roasts
       } else {
         await expect(factRow(page, 'Water').locator('dd')).toContainText(expected.temperature);
       }
-      await expect(page.getByRole('list', { name: 'Preparation steps' })).toContainText(expected.temperature);
+      await expect(page.getByRole('list', { name: 'Preparation steps' })).toContainText(
+        method === 'turkish' ? 'room-temperature water' : expected.temperature,
+      );
     }
   }
 });
