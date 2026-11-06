@@ -3,6 +3,15 @@
 KamaCafe is a mobile-first, catalog-driven guide for making coffee. It is a static Preact application: `catalog.json` supplies every category and recipe, while browser hash routes make each guide shareable.
 KamaCafe was built with GitHub's [SpecKit](https://github.com/github/spec-kit) SDD (Spec Driven Development) and OpenAI Codex.
 
+Every drink guide offers Light, Medium, and Dark roast guidance. Dark is selected
+on each fresh load; changing the selection updates method-appropriate flavor,
+extraction, temperature, grind, and preparation steps across drink navigation
+for the current visit. The choice stays in memory only—it is not stored in an
+account, browser storage, or the URL. Root recipes own the three roast profiles,
+and espresso-derived drinks inherit the selected Espresso guidance while
+preserving their milk, chocolate, ice, dilution, and assembly instructions. The
+application remains a static, no-account guide with no runtime data service.
+
 ## Run locally
 
 Prerequisites: nvm, Node.js 24, npm, and current Playwright-supported Chromium/WebKit hosts.
@@ -45,7 +54,7 @@ separately from Cloudflare and may require an explicit re-scrape.
 ## Project structure
 
 - `catalog.json` and `catalog-id-registry.json`: published content and permanent IDs
-- `src/catalog/`: validation, lookup, and recipe inheritance
+- `src/catalog/`: validation, roast-aware lookup, recipe inheritance, and scaling
 - `src/routing/`: native hash URL state
 - `src/components/` and `src/views/`: semantic Preact interface
 - `public/images/`: deployable drink illustrations and the social preview image

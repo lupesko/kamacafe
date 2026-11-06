@@ -67,6 +67,20 @@ for (const width of widths) {
     expect(Math.abs(compactValueBox!.y - compactLabelBox!.y)).toBeLessThanOrEqual(0.5);
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+
+    const guidance = page.locator('.roast-guidance');
+    const guidanceBox = await guidance.boundingBox();
+    const panelBox = await page.getByRole('region', { name: 'What you need' }).boundingBox();
+    expect(guidanceBox).not.toBeNull();
+    expect(panelBox).not.toBeNull();
+    expect(guidanceBox!.x).toBeGreaterThanOrEqual(panelBox!.x);
+    expect(guidanceBox!.x + guidanceBox!.width).toBeLessThanOrEqual(panelBox!.x + panelBox!.width + 0.5);
+
+    for (const label of await page.locator('.roast-selector__option').all()) {
+      const box = await label.boundingBox();
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    }
   });
 }
 
@@ -121,4 +135,22 @@ test('preparation guidance uses a logical heading and ordered list', async ({ pa
   await expect(page.getByRole('heading', { level: 2, name: 'What you need' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'How to make it' })).toBeVisible();
   await expect(page.locator('ol[aria-label="Preparation steps"]')).toBeVisible();
+});
+
+test('roast radios support native keyboard selection and visible focus', async ({ page }) => {
+  await page.goto('/#espresso');
+  const dark = page.getByRole('radio', { name: 'Dark' });
+  await dark.focus();
+  await expect(dark).toBeFocused();
+  expect(await dark.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe('none');
+
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.getByRole('radio', { name: 'Medium' })).toBeChecked();
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.getByRole('radio', { name: 'Light' })).toBeChecked();
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(results.violations).toEqual([]);
 });

@@ -1,5 +1,7 @@
+import type { ComponentChildren } from 'preact';
 import type { GrindGuidance, Ingredient, QuantityRange, ResolvedRecipe } from '../catalog/types';
 import { formatAmount, getBrewRatioDetails, scaleResolvedRecipe } from '../catalog/scale-recipe';
+import { formatTemperatureGuidance, temperatureGuidanceEquals } from '../catalog/temperature-guidance';
 import { RecipeScaler } from './recipe-scaler';
 
 const isRange = (quantity: Ingredient['quantity']): quantity is QuantityRange => typeof quantity !== 'number';
@@ -22,6 +24,7 @@ interface RecipePanelsProps {
   recipe: ResolvedRecipe;
   multiplier: number;
   onMultiplierChange: (multiplier: number) => void;
+  roastControl?: ComponentChildren;
 }
 
 interface RecipeFact {
@@ -30,14 +33,16 @@ interface RecipeFact {
   layout: 'compact' | 'prose';
 }
 
-export function RecipePanels({ recipe, multiplier, onMultiplierChange }: RecipePanelsProps) {
+export function RecipePanels({ recipe, multiplier, onMultiplierChange, roastControl }: RecipePanelsProps) {
   const ratio = getBrewRatioDetails(recipe);
   const scaledRecipe = scaleResolvedRecipe(recipe, recipe.scalable ? multiplier : 1);
   const brewTarget = scaledRecipe.brewRatio?.target;
   const brewWaterIngredient = brewTarget?.kind === 'ingredient'
     ? scaledRecipe.ingredients.find(({ name }) => name === brewTarget.ingredientName)
     : undefined;
-  const waterTemperatureIsInline = brewWaterIngredient?.temperatureC === scaledRecipe.waterTemperatureC;
+  const waterTemperatureIsInline = brewWaterIngredient?.temperatureC !== undefined
+    && scaledRecipe.waterTemperatureC !== undefined
+    && temperatureGuidanceEquals(brewWaterIngredient.temperatureC, scaledRecipe.waterTemperatureC);
   const settings: RecipeFact[] = [];
   if (scaledRecipe.grind) {
     settings.push({
@@ -48,7 +53,7 @@ export function RecipePanels({ recipe, multiplier, onMultiplierChange }: RecipeP
   }
   if (scaledRecipe.waterTemperatureC !== undefined && !waterTemperatureIsInline) {
     const label = scaledRecipe.espressoYieldG !== undefined ? 'Espresso brew temperature' : 'Water temperature';
-    settings.push({ label, value: `${scaledRecipe.waterTemperatureC}°C`, layout: 'compact' });
+    settings.push({ label, value: formatTemperatureGuidance(scaledRecipe.waterTemperatureC), layout: 'compact' });
   }
   if (scaledRecipe.espressoYieldG !== undefined) {
     settings.push({ label: 'Espresso yield', value: `${formatAmount(scaledRecipe.espressoYieldG)} g`, layout: 'compact' });
@@ -61,6 +66,7 @@ export function RecipePanels({ recipe, multiplier, onMultiplierChange }: RecipeP
     <div class="recipe-layout">
       <section class="recipe-panel" aria-labelledby="ingredients-heading">
         <h2 id="ingredients-heading">What you need</h2>
+        {roastControl}
         {recipe.scalable && ratio && (
           <RecipeScaler ratio={ratio} multiplier={multiplier} onMultiplierChange={onMultiplierChange} />
         )}
@@ -70,7 +76,7 @@ export function RecipePanels({ recipe, multiplier, onMultiplierChange }: RecipeP
               <dt>{ingredient.name}{ingredient.optional ? ' (optional)' : ''}</dt>
               <dd>
                 {quantityText(ingredient)}
-                {ingredient.temperatureC !== undefined && <span> · {ingredient.temperatureC}°C</span>}
+                {ingredient.temperatureC !== undefined && <span> · {formatTemperatureGuidance(ingredient.temperatureC)}</span>}
                 {ingredient.note && <small>{ingredient.note}</small>}
               </dd>
             </div>

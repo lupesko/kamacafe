@@ -23,6 +23,17 @@ export interface QuantityRange {
   max: number;
 }
 
+export type RoastLevel = 'light' | 'medium' | 'dark';
+
+export const ROAST_LEVELS = ['light', 'medium', 'dark'] as const satisfies readonly RoastLevel[];
+
+export interface TemperatureRange {
+  min: number;
+  max: number;
+}
+
+export type TemperatureGuidance = number | TemperatureRange;
+
 export interface GrindGuidance {
   label: string;
   referenceMicrons: QuantityRange;
@@ -34,7 +45,7 @@ export interface Ingredient {
   name: string;
   quantity: number | QuantityRange;
   unit: IngredientUnit;
-  temperatureC?: number;
+  temperatureC?: TemperatureGuidance;
   optional?: boolean;
   note?: string;
   scaleWithRecipe?: boolean;
@@ -49,16 +60,54 @@ export interface BrewRatio {
   target: BrewRatioTarget;
 }
 
+export type NonEmptyArray<T> = readonly [T, ...T[]];
+
+export type RoastAdjustment =
+  | {
+    grind: GrindGuidance;
+    waterTemperatureC?: TemperatureGuidance;
+    steps?: NonEmptyArray<string>;
+  }
+  | {
+    grind?: GrindGuidance;
+    waterTemperatureC: TemperatureGuidance;
+    steps?: NonEmptyArray<string>;
+  }
+  | {
+    grind?: GrindGuidance;
+    waterTemperatureC?: TemperatureGuidance;
+    steps: NonEmptyArray<string>;
+  };
+
+export interface RoastRecommendation {
+  flavor: string;
+  extraction: string;
+  temperatureExplanation: string;
+  grindExplanation: string;
+  adjustments?: RoastAdjustment;
+}
+
+export type RoastRecommendations = Record<RoastLevel, RoastRecommendation>;
+
+export interface ResolvedRoastRecommendation {
+  level: RoastLevel;
+  flavor: string;
+  extraction: string;
+  temperatureExplanation: string;
+  grindExplanation: string;
+}
+
 export interface Recipe {
   baseRecipeId?: string;
   ingredients: Ingredient[];
   scalable?: boolean;
   brewRatio?: BrewRatio;
   grind?: GrindGuidance;
-  waterTemperatureC?: number;
+  waterTemperatureC?: TemperatureGuidance;
   espressoYieldG?: number;
   waterGuidance?: string;
   steps: string[];
+  roastRecommendations?: RoastRecommendations;
 }
 
 export interface Drink {
@@ -96,9 +145,10 @@ export interface ResolvedRecipe {
   scalable?: boolean;
   brewRatio?: BrewRatio;
   grind?: GrindGuidance;
-  waterTemperatureC?: number;
+  waterTemperatureC?: TemperatureGuidance;
   espressoYieldG?: number;
   waterGuidance?: string;
+  roastRecommendation: ResolvedRoastRecommendation;
 }
 
 export type AppRoute =

@@ -21,6 +21,7 @@ test('a visitor can choose every category and open complete brewing guides', asy
 
   await page.goto('/#category-espresso-drink');
   await page.getByRole('link', { name: /Latte/ }).click();
+  await page.getByRole('radio', { name: 'Medium' }).check();
   await expect(page.getByRole('heading', { level: 1, name: 'Latte' })).toBeVisible();
   const latteCoffeeRow = page.locator('.recipe-facts__row').filter({
     has: page.locator('dt').filter({ hasText: /^Ground coffee$/ }),
@@ -35,6 +36,7 @@ test('a visitor can choose every category and open complete brewing guides', asy
   await expect(page.getByRole('list', { name: 'Preparation steps' }).getByRole('listitem')).toHaveCount(6);
 
   await page.goto('/#pour-over');
+  await page.getByRole('radio', { name: 'Medium' }).check();
   await expect(page.getByRole('heading', { level: 1, name: 'Pour-over' })).toBeVisible();
   const pourOverWaterRow = page.locator('.recipe-facts__row').filter({
     has: page.locator('dt').filter({ hasText: /^Water$/ }),
@@ -45,12 +47,14 @@ test('a visitor can choose every category and open complete brewing guides', asy
   await expect(page.getByText('Milk', { exact: true })).toHaveCount(0);
 
   await page.goto('/#french-press');
+  await page.getByRole('radio', { name: 'Medium' }).check();
   await expect(page.getByRole('heading', { level: 1, name: 'French press' })).toBeVisible();
   await expect(page.getByText('240 mL').first()).toBeVisible();
   await expect(page.getByText('Add 16 g of coarse coffee to the press and pour in 240 mL of 94°C water.')).toBeVisible();
 
   for (const id of ['pour-over', 'french-press', 'turkish']) {
     await page.goto(`/#${id}`);
+    await page.getByRole('radio', { name: 'Medium' }).check();
     await expect(page.locator('.recipe-facts__row').filter({
       has: page.locator('dt').filter({ hasText: /^Water temperature$/ }),
     })).toHaveCount(0);
@@ -59,6 +63,7 @@ test('a visitor can choose every category and open complete brewing guides', asy
 
 test('americano distinguishes espresso brewing water from dilution water', async ({ page }) => {
   await page.goto('/#americano');
+  await page.getByRole('radio', { name: 'Medium' }).check();
 
   const brewTemperatureRow = page.locator('.recipe-facts__row').filter({
     has: page.locator('dt').filter({ hasText: /^Espresso brew temperature$/ }),

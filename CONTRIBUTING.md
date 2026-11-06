@@ -29,6 +29,18 @@ Every recipe change must preserve the catalog contract. A new drink needs:
 
 The existing recipe values are approved seed content. Change them only when the pull request explains the evidence and user benefit.
 
+Every new root brewing method must also publish one complete
+`roastRecommendations` map with exactly `light`, `medium`, and `dark` records.
+Each record needs plain-language flavor, extraction, temperature, and grind
+explanations. Light and Dark adjustments must use explicit °C and approximate µm
+ranges, cite evidence in the pull request for changed guidance, and include
+complete method-step replacements when a displayed setting changes. Medium must
+have no adjustments and must remain compatible with the approved root recipe.
+Derived drinks must omit local roast maps: they inherit their root method's
+guidance while preserving milk, dilution, chocolate, ice, and assembly content.
+Run catalog validation and resolution tests across every roast before proposing
+the recipe for publication.
+
 ## Verify a change
 
 Use Node.js 24 and run:

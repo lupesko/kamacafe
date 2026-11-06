@@ -1,9 +1,18 @@
 import Ajv2020, { type ErrorObject } from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
-import catalogSchema from '../../specs/001-kamacafe-baseline/contracts/catalog.schema.json';
+import catalogSchema from '../../specs/004-add-roast-recommendations/contracts/catalog.schema.json';
 import registrySchema from '../../specs/001-kamacafe-baseline/contracts/catalog-id-registry.schema.json';
 import { resolveRecipe } from './resolve-recipe';
-import type { Catalog, CatalogIdRegistry, Ingredient, QuantityRange } from './types';
+import { assertValidTemperatureGuidance, temperatureGuidanceEquals } from './temperature-guidance';
+import { ROAST_LEVELS } from './types';
+import type {
+  Catalog,
+  CatalogIdRegistry,
+  GrindGuidance,
+  Ingredient,
+  QuantityRange,
+  TemperatureGuidance,
+} from './types';
 
 export class ValidationIssue {
   constructor(
@@ -41,6 +50,33 @@ function duplicateIssues(values: readonly string[], label: string): ValidationIs
 
 const isRange = (quantity: Ingredient['quantity']): quantity is QuantityRange => typeof quantity !== 'number';
 
+function checkTemperature(
+  guidance: TemperatureGuidance | undefined,
+  label: string,
+  issues: ValidationIssue[],
+): void {
+  if (guidance === undefined) return;
+  try {
+    assertValidTemperatureGuidance(guidance);
+  } catch (error) {
+    issues.push(new ValidationIssue(`${label} has invalid temperature guidance: ${error instanceof Error ? error.message : String(error)}`));
+  }
+}
+
+function checkGrind(grind: GrindGuidance | undefined, label: string, issues: ValidationIssue[]): void {
+  if (grind && grind.referenceMicrons.min > grind.referenceMicrons.max) {
+    issues.push(new ValidationIssue(`${label} has an invalid grind micron range`));
+  }
+}
+
+function temperaturesEqual(first: TemperatureGuidance, second: TemperatureGuidance): boolean {
+  try {
+    return temperatureGuidanceEquals(first, second);
+  } catch {
+    return false;
+  }
+}
+
 export function validateCatalog(
   catalogInput: unknown,
   registryInput: unknown,
@@ -77,53 +113,104 @@ export function validateCatalog(
       if (isRange(ingredient.quantity) && ingredient.quantity.min > ingredient.quantity.max) {
         issues.push(new ValidationIssue(`Drink ${drink.id} ingredient ${ingredient.name} has an invalid quantity range`));
       }
+      checkTemperature(ingredient.temperatureC, `Drink ${drink.id} ingredient ${ingredient.name}`, issues);
     }
 
-    try {
-      const recipe = resolveRecipe(drink.id, catalog.drinks);
-      const hasCoffee = recipe.ingredients.some(({ name }) => name.toLowerCase().includes('coffee'));
-      const hasWaterAmount = recipe.ingredients.some(({ name }) => name.toLowerCase() === 'water');
-      const hasYieldGuidance = recipe.espressoYieldG !== undefined && Boolean(recipe.waterGuidance);
-      if (!hasCoffee) issues.push(new ValidationIssue(`Drink ${drink.id} is missing a coffee amount`));
-      if (recipe.scalable && !recipe.brewRatio) {
-        issues.push(new ValidationIssue(`Drink ${drink.id} is missing brew ratio guidance`));
+    const recipeInput = drink.recipe;
+    if (recipeInput.baseRecipeId) {
+      if (recipeInput.roastRecommendations) {
+        issues.push(new ValidationIssue(`Derived recipe ${drink.id} must inherit roast recommendations`));
       }
-      if (recipe.brewRatio) {
-        const coffeeMatches = recipe.ingredients.filter(({ name }) => name === recipe.brewRatio?.coffeeIngredientName);
-        const coffee = coffeeMatches[0];
-        if (coffeeMatches.length !== 1 || !coffee || typeof coffee.quantity !== 'number' || coffee.unit !== 'g') {
-          issues.push(new ValidationIssue(`Drink ${drink.id} brew ratio must reference one exact coffee ingredient measured in g`));
-        }
+    } else if (!recipeInput.roastRecommendations) {
+      issues.push(new ValidationIssue(`Root recipe ${drink.id} is missing roast recommendations`));
+    }
 
-        if (recipe.brewRatio.target.kind === 'espresso-yield') {
-          if (recipe.espressoYieldG === undefined) {
-            issues.push(new ValidationIssue(`Drink ${drink.id} brew ratio references a missing espresso yield`));
-          }
-        } else {
-          const targetName = recipe.brewRatio.target.ingredientName;
-          const targetMatches = recipe.ingredients.filter(({ name }) => name === targetName);
-          const target = targetMatches[0];
-          if (targetMatches.length !== 1 || !target || typeof target.quantity !== 'number' || target.unit !== 'mL') {
-            issues.push(new ValidationIssue(`Drink ${drink.id} brew ratio must reference one exact water ingredient measured in mL`));
-          } else if (target.temperatureC !== recipe.waterTemperatureC) {
-            issues.push(new ValidationIssue(`Drink ${drink.id} brew-water ingredient temperature must match its water temperature`));
+    if (recipeInput.roastRecommendations) {
+      if (recipeInput.roastRecommendations.medium.adjustments) {
+        issues.push(new ValidationIssue(`Drink ${drink.id} Medium roast must not define adjustments`));
+      }
+      for (const roastLevel of ROAST_LEVELS) {
+        const recommendation = recipeInput.roastRecommendations[roastLevel];
+        const adjustment = recommendation.adjustments;
+        if (adjustment) {
+          checkTemperature(adjustment.waterTemperatureC, `Drink ${drink.id} ${roastLevel} roast`, issues);
+          checkGrind(adjustment.grind, `Drink ${drink.id} ${roastLevel} roast`, issues);
+          if (adjustment.steps && (!adjustment.steps.length || adjustment.steps.some((step) => !step.trim()))) {
+            issues.push(new ValidationIssue(`Drink ${drink.id} ${roastLevel} roast has invalid variant steps`));
           }
         }
       }
-      if (!recipe.grind) issues.push(new ValidationIssue(`Drink ${drink.id} is missing grind guidance`));
-      else if (recipe.grind.referenceMicrons.min > recipe.grind.referenceMicrons.max) {
-        issues.push(new ValidationIssue(`Drink ${drink.id} has an invalid grind micron range`));
+    }
+    checkTemperature(recipeInput.waterTemperatureC, `Drink ${drink.id}`, issues);
+    checkGrind(recipeInput.grind, `Drink ${drink.id}`, issues);
+
+    const rawTarget = recipeInput.brewRatio?.target;
+    if (rawTarget?.kind === 'ingredient' && recipeInput.waterTemperatureC !== undefined) {
+      const target = recipeInput.ingredients.find(({ name }) => name === rawTarget.ingredientName);
+      if (target?.temperatureC !== undefined
+        && !temperaturesEqual(target.temperatureC, recipeInput.waterTemperatureC)) {
+        issues.push(new ValidationIssue(`Drink ${drink.id} brew-water ingredient temperature must match its water temperature`));
       }
-      if (recipe.waterTemperatureC === undefined) issues.push(new ValidationIssue(`Drink ${drink.id} is missing water temperature`));
-      if (!hasWaterAmount && !hasYieldGuidance) issues.push(new ValidationIssue(`Drink ${drink.id} is missing water amount or espresso yield guidance`));
-      if (!recipe.steps.length || recipe.steps.some((step) => !step.trim())) issues.push(new ValidationIssue(`Drink ${drink.id} has invalid preparation steps`));
-      for (const ingredient of recipe.ingredients) {
-        if (ingredient.name.toLowerCase().includes('milk') && ingredient.temperatureC === undefined) {
-          issues.push(new ValidationIssue(`Drink ${drink.id} milk ingredient is missing temperature`));
+    }
+
+    for (const roastLevel of ROAST_LEVELS) {
+      try {
+        const recipe = resolveRecipe(drink.id, catalog.drinks, roastLevel);
+        const hasCoffee = recipe.ingredients.some(({ name }) => name.toLowerCase().includes('coffee'));
+        const hasWaterAmount = recipe.ingredients.some(({ name }) => name.toLowerCase() === 'water');
+        const hasYieldGuidance = recipe.espressoYieldG !== undefined && Boolean(recipe.waterGuidance);
+        if (!hasCoffee) issues.push(new ValidationIssue(`Drink ${drink.id} is missing a coffee amount`));
+        if (recipe.scalable && !recipe.brewRatio) {
+          issues.push(new ValidationIssue(`Drink ${drink.id} is missing brew ratio guidance`));
         }
+        if (recipe.brewRatio) {
+          const coffeeMatches = recipe.ingredients.filter(({ name }) => name === recipe.brewRatio?.coffeeIngredientName);
+          const coffee = coffeeMatches[0];
+          if (coffeeMatches.length !== 1 || !coffee || typeof coffee.quantity !== 'number' || coffee.unit !== 'g') {
+            issues.push(new ValidationIssue(`Drink ${drink.id} brew ratio must reference one exact coffee ingredient measured in g`));
+          }
+
+          if (recipe.brewRatio.target.kind === 'espresso-yield') {
+            if (recipe.espressoYieldG === undefined) {
+              issues.push(new ValidationIssue(`Drink ${drink.id} brew ratio references a missing espresso yield`));
+            }
+          } else {
+            const targetName = recipe.brewRatio.target.ingredientName;
+            const targetMatches = recipe.ingredients.filter(({ name }) => name === targetName);
+            const target = targetMatches[0];
+            if (targetMatches.length !== 1 || !target || typeof target.quantity !== 'number' || target.unit !== 'mL') {
+              issues.push(new ValidationIssue(`Drink ${drink.id} brew ratio must reference one exact water ingredient measured in mL`));
+            } else if (target.temperatureC === undefined
+              || recipe.waterTemperatureC === undefined
+              || !temperaturesEqual(target.temperatureC, recipe.waterTemperatureC)) {
+              issues.push(new ValidationIssue(`Drink ${drink.id} brew-water ingredient temperature must match its water temperature`));
+            }
+          }
+        }
+        if (!recipe.grind) issues.push(new ValidationIssue(`Drink ${drink.id} is missing grind guidance`));
+        else if (recipe.grind.referenceMicrons.min > recipe.grind.referenceMicrons.max) {
+          issues.push(new ValidationIssue(`Drink ${drink.id} has an invalid grind micron range`));
+        }
+        if (recipe.waterTemperatureC === undefined) issues.push(new ValidationIssue(`Drink ${drink.id} is missing water temperature`));
+        else checkTemperature(recipe.waterTemperatureC, `Drink ${drink.id} ${roastLevel} roast`, issues);
+        if ([
+          recipe.roastRecommendation.flavor,
+          recipe.roastRecommendation.extraction,
+          recipe.roastRecommendation.temperatureExplanation,
+          recipe.roastRecommendation.grindExplanation,
+        ].some((value) => !value.trim())) {
+          issues.push(new ValidationIssue(`Drink ${drink.id} has incomplete ${roastLevel} roast guidance`));
+        }
+        if (!hasWaterAmount && !hasYieldGuidance) issues.push(new ValidationIssue(`Drink ${drink.id} is missing water amount or espresso yield guidance`));
+        if (!recipe.steps.length || recipe.steps.some((step) => !step.trim())) issues.push(new ValidationIssue(`Drink ${drink.id} has invalid preparation steps`));
+        for (const ingredient of recipe.ingredients) {
+          if (ingredient.name.toLowerCase().includes('milk') && ingredient.temperatureC === undefined) {
+            issues.push(new ValidationIssue(`Drink ${drink.id} milk ingredient is missing temperature`));
+          }
+        }
+      } catch (error) {
+        issues.push(new ValidationIssue(error instanceof Error ? error.message : String(error)));
       }
-    } catch (error) {
-      issues.push(new ValidationIssue(error instanceof Error ? error.message : String(error)));
     }
   }
 

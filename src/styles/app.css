@@ -144,6 +144,42 @@ img { display: block; max-width: 100%; }
 .recipe-layout { display: grid; gap: 0.75rem; }
 .recipe-panel { padding: 1.25rem; border-radius: var(--radius-panel); background: var(--cocoa-surface-container); }
 .recipe-panel h2 { margin: 0 0 1rem; font-size: 1.75rem; font-weight: 400; letter-spacing: -0.025em; }
+.roast-guidance {
+  min-width: 0;
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--cocoa-outline) 70%, transparent);
+  border-radius: 1.125rem;
+  background: var(--cocoa-surface);
+}
+.roast-selector { min-width: 0; margin: 0; padding: 0; border: 0; }
+.roast-selector legend { margin-bottom: 0.65rem; font-size: 1.15rem; font-weight: 600; }
+.roast-selector__options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.375rem; }
+.roast-selector__option {
+  display: flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid var(--cocoa-outline);
+  border-radius: 999px;
+  background: var(--cocoa-surface-container);
+  cursor: pointer;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.roast-selector__option:has(input:checked) { border-color: var(--cocoa-primary); background: var(--cocoa-primary-container); }
+.roast-selector__option:has(input:focus-visible) { outline: 3px solid var(--cocoa-primary); outline-offset: 3px; }
+.roast-selector__option input { flex: 0 0 auto; width: 1rem; height: 1rem; margin: 0; accent-color: var(--cocoa-primary); }
+.roast-selector__option span { min-width: 0; }
+.roast-explanation { min-width: 0; margin-top: 1rem; }
+.roast-explanation__title { margin: 0; color: var(--cocoa-primary); font-size: 1.05rem; font-weight: 700; }
+.roast-explanation dl { margin: 0.5rem 0 0; }
+.roast-explanation dl > div { display: grid; gap: 0.2rem; padding: 0.65rem 0; border-top: 1px solid var(--cocoa-outline); }
+.roast-explanation dt { color: var(--cocoa-on-surface-variant); font-size: 0.8rem; font-weight: 700; }
+.roast-explanation dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .recipe-scaler {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -216,6 +252,11 @@ img { display: block; max-width: 100%; }
   .drink-hero__image { position: absolute; right: 1rem; bottom: -0.5rem; width: 18rem; height: 18rem; margin: 0; }
   .hero-facts { padding-bottom: 0; padding-right: 8rem; }
   .recipe-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+}
+
+@media (max-width: 23rem) {
+  .roast-selector__options { grid-template-columns: 1fr; }
+  .roast-selector__option { justify-content: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {

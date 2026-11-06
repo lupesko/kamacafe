@@ -8,6 +8,7 @@ const factRow = (page: Page, label: string) =>
 
 test('a brewed-coffee recipe exposes its ratio and scales a larger batch', async ({ page }) => {
   await page.goto('/#pour-over');
+  await page.getByRole('radio', { name: 'Medium' }).check();
 
   await expect(page.getByText('1:16', { exact: true })).toBeVisible();
   await expect(page.getByText('Coffee : water', { exact: true })).toBeVisible();
@@ -29,6 +30,7 @@ test('a brewed-coffee recipe exposes its ratio and scales a larger batch', async
 
 test('espresso-based recipes stay fixed at one serving and omit batch controls', async ({ page }) => {
   await page.goto('/#latte');
+  await page.getByRole('radio', { name: 'Medium' }).check();
 
   await expect(page.getByRole('region', { name: 'Scale recipe' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Increase servings' })).toHaveCount(0);
@@ -40,6 +42,7 @@ test('espresso-based recipes stay fixed at one serving and omit batch controls',
   await expect(factRow(page, 'Espresso yield').locator('dd')).toHaveText('36 g');
 
   await page.goto('/#americano');
+  await page.getByRole('radio', { name: 'Medium' }).check();
   await expect(page.getByRole('region', { name: 'Scale recipe' })).toHaveCount(0);
   await expect(factRow(page, 'Dilution water').locator('dd')).toHaveText('150 mL · 85°C');
 });

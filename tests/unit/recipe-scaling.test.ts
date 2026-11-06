@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import catalogJson from '../../catalog.json';
+import { resolveRecipe } from '../../src/catalog/resolve-recipe';
 import { getBrewRatioDetails, scaleResolvedRecipe, scaleTextAmounts } from '../../src/catalog/scale-recipe';
-import type { ResolvedRecipe } from '../../src/catalog/types';
+import type { Catalog, ResolvedRecipe } from '../../src/catalog/types';
+
+const mediumRecommendation = {
+  level: 'medium' as const,
+  flavor: 'Balanced flavor.',
+  extraction: 'Balanced extraction.',
+  temperatureExplanation: 'Baseline temperature.',
+  grindExplanation: 'Baseline grind.',
+};
 
 const pourOver: ResolvedRecipe = {
   lineage: ['pour-over'],
@@ -19,6 +29,7 @@ const pourOver: ResolvedRecipe = {
     'Pour 30 mL and wait 30 seconds.',
     'Pour the remaining 210 mL and drain in 3–4 minutes.',
   ],
+  roastRecommendation: mediumRecommendation,
 };
 
 describe('recipe scaling', () => {
@@ -57,6 +68,7 @@ describe('recipe scaling', () => {
       espressoYieldG: 36,
       waterGuidance: 'Target 36 g of brewed espresso.',
       steps: ['Pull 36 g in 25–30 seconds.'],
+      roastRecommendation: mediumRecommendation,
     };
     const scaled = scaleResolvedRecipe(espresso, 2);
 
@@ -64,5 +76,34 @@ describe('recipe scaling', () => {
     expect(scaled.espressoYieldG).toBe(72);
     expect(scaled.waterGuidance).toContain('72 g');
     expect(scaled.steps[0]).toBe('Pull 72 g in 25–30 seconds.');
+  });
+
+  it('scales after roast resolution while cloning range temperatures and recommendation metadata', () => {
+    const catalog = catalogJson as Catalog;
+    const resolved = resolveRecipe('espresso', catalog.drinks, 'dark');
+    const before = structuredClone(resolved);
+    const scaled = scaleResolvedRecipe(resolved, 2);
+
+    expect(scaled.ingredients[0].quantity).toBe(36);
+    expect(scaled.steps[0]).toContain('36 g');
+    expect(scaled.waterTemperatureC).toEqual({ min: 90, max: 91 });
+    expect(scaled.waterTemperatureC).not.toBe(resolved.waterTemperatureC);
+    expect(scaled.grind).toEqual(resolved.grind);
+    expect(scaled.roastRecommendation).toEqual(resolved.roastRecommendation);
+    expect(scaled.roastRecommendation).not.toBe(resolved.roastRecommendation);
+    expect(resolved).toEqual(before);
+  });
+
+  it('keeps selected steps and guidance fixed while scaling only quantities', () => {
+    const catalog = catalogJson as Catalog;
+    const resolved = resolveRecipe('pour-over', catalog.drinks, 'light');
+    const scaled = scaleResolvedRecipe(resolved, 2);
+
+    expect(scaled.ingredients.find(({ name }) => name === 'Ground coffee')?.quantity).toBe(30);
+    expect(scaled.ingredients.find(({ name }) => name === 'Water')?.quantity).toBe(480);
+    expect(scaled.ingredients.find(({ name }) => name === 'Water')?.temperatureC).toBe(96);
+    expect(scaled.steps.join(' ')).toContain('60 mL of 96°C water');
+    expect(scaled.grind).toEqual(resolved.grind);
+    expect(scaled.roastRecommendation).toEqual(resolved.roastRecommendation);
   });
 });
