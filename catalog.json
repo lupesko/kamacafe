@@ -53,7 +53,60 @@
           "Grind 18 g of coffee finely and dose it into the portafilter.",
           "Distribute, tamp evenly, and lock in the portafilter.",
           "Set the machine to about 93°C and pull about 36 g of espresso in 25–30 seconds. Taste and adjust the grind next time."
-        ]
+        ],
+        "roastRecommendations": {
+          "light": {
+            "flavor": "Light roasts often taste brighter and more acidic, with fruit or floral notes.",
+            "extraction": "As a starting point, use more extraction energy because the less-developed beans tend to give up flavor less readily in a short espresso shot.",
+            "temperatureExplanation": "Start at 94°C, 1°C hotter than Medium, to add extraction energy during the brief brew.",
+            "grindExplanation": "Use a fine ~150–400 µm grind, slightly finer than Medium, to expose more coffee to the water.",
+            "adjustments": {
+              "grind": {
+                "label": "fine",
+                "referenceMicrons": {
+                  "min": 150,
+                  "max": 400
+                }
+              },
+              "waterTemperatureC": 94,
+              "steps": [
+                "Grind 18 g of coffee finely and dose it into the portafilter.",
+                "Distribute, tamp evenly, and lock in the portafilter.",
+                "Set the machine to about 94°C and pull about 36 g of espresso in 25–30 seconds."
+              ]
+            }
+          },
+          "medium": {
+            "flavor": "Medium roasts often balance sweetness, acidity, and body.",
+            "extraction": "As a starting point, use the published recipe as the moderate reference for a balanced espresso extraction.",
+            "temperatureExplanation": "Keep the established Medium target of 93°C as the balanced reference point.",
+            "grindExplanation": "Keep the established fine ~200–500 µm grind as the balanced reference point."
+          },
+          "dark": {
+            "flavor": "Dark roasts often emphasize cocoa, caramelized, and bittersweet flavors with lower perceived acidity.",
+            "extraction": "As a starting point, use gentler extraction because the more-developed, porous beans can release roast-forward flavors quickly, although coffees still vary.",
+            "temperatureExplanation": "Start at 90–91°C, cooler than Medium, to limit harsh or bitter roast flavors during the short brew.",
+            "grindExplanation": "Use a slightly coarser fine ~300–600 µm grind so extraction proceeds more gently than with Medium.",
+            "adjustments": {
+              "grind": {
+                "label": "slightly coarser fine",
+                "referenceMicrons": {
+                  "min": 300,
+                  "max": 600
+                }
+              },
+              "waterTemperatureC": {
+                "min": 90,
+                "max": 91
+              },
+              "steps": [
+                "Grind 18 g of coffee to a slightly coarser fine setting and dose it into the portafilter.",
+                "Distribute, tamp evenly, and lock in the portafilter.",
+                "Set the machine to about 90–91°C and pull about 36 g of espresso in 25–30 seconds."
+              ]
+            }
+          }
+        }
       }
     },
     {
@@ -187,7 +240,57 @@
           "Rinse the filter and add 15 g of medium-fine coffee.",
           "Pour 30 mL of 94°C water to wet all the grounds; wait 30 seconds.",
           "Pour the remaining 210 mL slowly in circles. Aim to finish draining in 3–4 minutes."
-        ]
+        ],
+        "roastRecommendations": {
+          "light": {
+            "flavor": "Light roasts often taste brighter and more acidic, with fruit or floral notes that a clear pour-over can highlight.",
+            "extraction": "As a starting point, use more extraction energy because less-developed beans tend to release flavor less readily during percolation.",
+            "temperatureExplanation": "Start at 96°C, hotter than Medium, to help water extract the light roast evenly.",
+            "grindExplanation": "Use a fine-to-medium-fine ~400–700 µm grind, finer than Medium, to expose more surface area.",
+            "adjustments": {
+              "grind": {
+                "label": "fine-to-medium-fine",
+                "referenceMicrons": {
+                  "min": 400,
+                  "max": 700
+                }
+              },
+              "waterTemperatureC": 96,
+              "steps": [
+                "Rinse the filter and add 15 g of fine-to-medium-fine coffee.",
+                "Pour 30 mL of 96°C water to wet all the grounds; wait 30 seconds.",
+                "Pour the remaining 210 mL slowly in circles. Aim to finish draining in 3–4 minutes."
+              ]
+            }
+          },
+          "medium": {
+            "flavor": "Medium roasts often balance sweetness, acidity, and body in a clear pour-over.",
+            "extraction": "As a starting point, use the published recipe as the moderate reference for balanced percolation.",
+            "temperatureExplanation": "Keep the established Medium target of 94°C as the balanced reference point.",
+            "grindExplanation": "Keep the established medium-fine ~500–800 µm grind as the balanced reference point."
+          },
+          "dark": {
+            "flavor": "Dark roasts often emphasize cocoa, caramelized, and bittersweet flavors with lower perceived acidity.",
+            "extraction": "As a starting point, use gentler extraction because more-developed, porous beans can release roast-forward flavors quickly, although coffees still vary.",
+            "temperatureExplanation": "Start at 90°C, cooler than Medium, to reduce the chance of harsh or bitter flavors.",
+            "grindExplanation": "Use a medium ~700–1000 µm grind, coarser than Medium, to slow extraction through the coffee bed.",
+            "adjustments": {
+              "grind": {
+                "label": "medium",
+                "referenceMicrons": {
+                  "min": 700,
+                  "max": 1000
+                }
+              },
+              "waterTemperatureC": 90,
+              "steps": [
+                "Rinse the filter and add 15 g of medium-ground coffee.",
+                "Pour 30 mL of 90°C water to wet all the grounds; wait 30 seconds.",
+                "Pour the remaining 210 mL slowly in circles. Aim to finish draining in 3–4 minutes."
+              ]
+            }
+          }
+        }
       }
     },
     {
@@ -243,7 +346,57 @@
           "Add 16 g of coarse coffee to the press and pour in 240 mL of 94°C water.",
           "Stir gently, cover, and steep for 4 minutes.",
           "Press the plunger slowly and pour right away."
-        ]
+        ],
+        "roastRecommendations": {
+          "light": {
+            "flavor": "Light roasts often taste brighter and more acidic, with fruit or floral notes and a rounded immersion body.",
+            "extraction": "As a starting point, use more extraction energy because less-developed beans tend to release flavor less readily during the steep.",
+            "temperatureExplanation": "Start at 96°C, hotter than Medium, to help the immersion draw flavor from the light roast.",
+            "grindExplanation": "Use a medium-coarse ~800–1100 µm grind, finer than Medium but still suitable for the press filter.",
+            "adjustments": {
+              "grind": {
+                "label": "medium-coarse",
+                "referenceMicrons": {
+                  "min": 800,
+                  "max": 1100
+                }
+              },
+              "waterTemperatureC": 96,
+              "steps": [
+                "Add 16 g of medium-coarse coffee to the press and pour in 240 mL of 96°C water.",
+                "Stir gently, cover, and steep for 4 minutes.",
+                "Press the plunger slowly and pour right away."
+              ]
+            }
+          },
+          "medium": {
+            "flavor": "Medium roasts often balance sweetness, acidity, and body, reinforced by French press immersion.",
+            "extraction": "As a starting point, use the published recipe as the moderate reference for a balanced steep.",
+            "temperatureExplanation": "Keep the established Medium target of 94°C as the balanced reference point.",
+            "grindExplanation": "Keep the established coarse ~1000–1400 µm grind as the balanced reference point."
+          },
+          "dark": {
+            "flavor": "Dark roasts often emphasize cocoa, caramelized, and bittersweet flavors with lower perceived acidity and a heavy body.",
+            "extraction": "As a starting point, use gentler extraction because more-developed, porous beans can release roast-forward flavors quickly, although coffees still vary.",
+            "temperatureExplanation": "Start at 90°C, cooler than Medium, to keep the long immersion from emphasizing harsh or bitter flavors.",
+            "grindExplanation": "Use a coarse-to-very-coarse ~1200–1600 µm grind, coarser than Medium, for a gentler steep and clean pressing.",
+            "adjustments": {
+              "grind": {
+                "label": "coarse-to-very-coarse",
+                "referenceMicrons": {
+                  "min": 1200,
+                  "max": 1600
+                }
+              },
+              "waterTemperatureC": 90,
+              "steps": [
+                "Add 16 g of coarse-to-very-coarse coffee to the press and pour in 240 mL of 90°C water.",
+                "Stir gently, cover, and steep for 4 minutes.",
+                "Press the plunger slowly and pour right away."
+              ]
+            }
+          }
+        }
       }
     },
     {
@@ -383,7 +536,41 @@
           "Add 70 mL of room-temperature water, 7 g of extra-fine coffee, and optional sugar to a cezve. Stir before heating.",
           "Heat slowly until the foam rises; remove before it boils over.",
           "Pour gently into a small cup and let the grounds settle before sipping."
-        ]
+        ],
+        "roastRecommendations": {
+          "light": {
+            "flavor": "Light roasts often taste brighter and more acidic, with fruit or floral notes that remain vivid in this concentrated cup.",
+            "extraction": "As a starting point, heat slowly and steadily so the less-developed coffee has enough contact and energy before the foam rises.",
+            "temperatureExplanation": "Keep the starting water unchanged at about 20°C because room-temperature water and controlled heating define the Turkish method.",
+            "grindExplanation": "Keep the grind unchanged at extra-fine ~50–200 µm because suspended powder-fine coffee defines the method.",
+            "adjustments": {
+              "steps": [
+                "Add 70 mL of room-temperature 20°C water, 7 g of extra-fine coffee, and optional sugar to a cezve. Stir before heating.",
+                "Heat slowly and steadily so the light roast extracts before the foam rises; remove before it boils over.",
+                "Pour gently into a small cup and let the grounds settle before sipping."
+              ]
+            }
+          },
+          "medium": {
+            "flavor": "Medium roasts often balance sweetness, acidity, and body in the concentrated Turkish preparation.",
+            "extraction": "As a starting point, use the published slow-heating method as the moderate reference for balanced extraction.",
+            "temperatureExplanation": "Keep the starting water unchanged at about 20°C because room-temperature water and controlled heating define the Turkish method.",
+            "grindExplanation": "Keep the grind unchanged at extra-fine ~50–200 µm because suspended powder-fine coffee defines the method."
+          },
+          "dark": {
+            "flavor": "Dark roasts often emphasize cocoa, caramelized, and bittersweet flavors with lower perceived acidity in this concentrated cup.",
+            "extraction": "As a starting point, heat gently because the more-developed, porous coffee can release roast-forward flavors quickly, although coffees still vary.",
+            "temperatureExplanation": "Keep the starting water unchanged at about 20°C because room-temperature water and controlled heating define the Turkish method; gentler heating supplies the control.",
+            "grindExplanation": "Keep the grind unchanged at extra-fine ~50–200 µm because suspended powder-fine coffee defines the method.",
+            "adjustments": {
+              "steps": [
+                "Add 70 mL of room-temperature 20°C water, 7 g of extra-fine coffee, and optional sugar to a cezve. Stir before heating.",
+                "Heat gently and watch closely as the foam rises so the dark roast does not overheat; remove before it boils over.",
+                "Pour gently into a small cup and let the grounds settle before sipping."
+              ]
+            }
+          }
+        }
       }
     },
     {

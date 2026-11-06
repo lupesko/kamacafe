@@ -1,4 +1,4 @@
-import type { Ingredient, IngredientUnit, QuantityRange, ResolvedRecipe } from './types';
+import type { Ingredient, IngredientUnit, QuantityRange, ResolvedRecipe, TemperatureGuidance } from './types';
 
 const isRange = (quantity: Ingredient['quantity']): quantity is QuantityRange => typeof quantity !== 'number';
 
@@ -23,6 +23,10 @@ function scaleQuantity(quantity: Ingredient['quantity'], multiplier: number): In
     };
   }
   return roundAmount(quantity * multiplier);
+}
+
+function cloneTemperature(guidance: TemperatureGuidance): TemperatureGuidance {
+  return typeof guidance === 'number' ? guidance : { ...guidance };
 }
 
 export function scaleTextAmounts(text: string, multiplier: number): string {
@@ -80,12 +84,19 @@ export function scaleResolvedRecipe(recipe: ResolvedRecipe, multiplier: number):
       quantity: ingredient.scaleWithRecipe === false
         ? structuredClone(ingredient.quantity)
         : scaleQuantity(ingredient.quantity, safeMultiplier),
+      ...(ingredient.temperatureC === undefined
+        ? {}
+        : { temperatureC: cloneTemperature(ingredient.temperatureC) }),
     })),
     steps: recipe.steps.map((step) => scaleTextAmounts(step, safeMultiplier)),
   };
 
   if (recipe.grind) scaled.grind = structuredClone(recipe.grind);
   if (recipe.brewRatio) scaled.brewRatio = structuredClone(recipe.brewRatio);
+  if (recipe.waterTemperatureC !== undefined) {
+    scaled.waterTemperatureC = cloneTemperature(recipe.waterTemperatureC);
+  }
+  scaled.roastRecommendation = { ...recipe.roastRecommendation };
   if (recipe.espressoYieldG !== undefined) {
     scaled.espressoYieldG = roundAmount(recipe.espressoYieldG * safeMultiplier);
   }

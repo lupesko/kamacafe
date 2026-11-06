@@ -1,17 +1,20 @@
 import { useState } from 'preact/hooks';
 import { BackLink } from '../components/back-link';
 import { RecipePanels } from '../components/recipe-panels';
+import { RoastSelector } from '../components/roast-selector';
 import { formatAmount } from '../catalog/scale-recipe';
 import { categoryHash } from '../routing/hash-route';
-import type { Category, Drink, ResolvedRecipe } from '../catalog/types';
+import type { Category, Drink, ResolvedRecipe, RoastLevel } from '../catalog/types';
 
 interface DrinkViewProps {
   category: Category;
   drink: Drink;
   recipe: ResolvedRecipe;
+  roastLevel: RoastLevel;
+  onRoastLevelChange: (level: RoastLevel) => void;
 }
 
-export function DrinkView({ category, drink, recipe }: DrinkViewProps) {
+export function DrinkView({ category, drink, recipe, roastLevel, onRoastLevelChange }: DrinkViewProps) {
   const [multiplier, setMultiplier] = useState(1);
   const caffeine = drink.caffeine.minMg === drink.caffeine.maxMg
     ? `${drink.caffeine.minMg} mg`
@@ -41,7 +44,18 @@ export function DrinkView({ category, drink, recipe }: DrinkViewProps) {
         </div>
         <img class="drink-hero__image" src={`/images/${drink.id}.png`} alt="" />
       </article>
-      <RecipePanels recipe={recipe} multiplier={multiplier} onMultiplierChange={setMultiplier} />
+      <RecipePanels
+        recipe={recipe}
+        multiplier={multiplier}
+        onMultiplierChange={setMultiplier}
+        roastControl={(
+          <RoastSelector
+            value={roastLevel}
+            recommendation={recipe.roastRecommendation}
+            onChange={onRoastLevelChange}
+          />
+        )}
+      />
     </main>
   );
 }

@@ -98,4 +98,67 @@ describe('catalog validation', () => {
     retired.records.find(({ id }) => id === 'espresso')!.status = 'retired';
     expect(errorsFor(catalog, retired).join(' ')).toMatch(/retired/i);
   });
+
+  it.each([
+    ['missing roast key', (value: Catalog) => {
+      const map = value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!;
+      delete (map as Partial<typeof map>).light;
+    }],
+    ['extra roast key', (value: Catalog) => {
+      const map = value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!;
+      (map as unknown as Record<string, unknown>).city = map.medium;
+    }],
+    ['blank explanation', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!.light.flavor = ' ';
+    }],
+    ['empty adjustment', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!.light.adjustments = {} as never;
+    }],
+    ['Medium adjustment', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!.medium.adjustments = {
+        waterTemperatureC: 92,
+      };
+    }],
+    ['out-of-bounds temperature', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!.light.adjustments = {
+        waterTemperatureC: 101,
+      };
+    }],
+    ['backward temperature range', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations!.dark.adjustments!.waterTemperatureC = {
+        min: 91,
+        max: 90,
+      };
+    }],
+    ['backward variant grind range', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'pour-over')!.recipe.roastRecommendations!.light.adjustments!.grind!.referenceMicrons = {
+        min: 700,
+        max: 400,
+      };
+    }],
+    ['missing root map', (value: Catalog) => {
+      delete value.drinks.find(({ id }) => id === 'french-press')!.recipe.roastRecommendations;
+    }],
+    ['derived map', (value: Catalog) => {
+      value.drinks.find(({ id }) => id === 'latte')!.recipe.roastRecommendations = structuredClone(
+        value.drinks.find(({ id }) => id === 'espresso')!.recipe.roastRecommendations,
+      );
+    }],
+    ['incomplete all-roast resolution', (value: Catalog) => {
+      delete value.drinks.find(({ id }) => id === 'turkish')!.recipe.waterTemperatureC;
+    }],
+  ])('rejects roast contract violation: %s', (_name, mutate) => {
+    const candidate = clone();
+    mutate(candidate);
+    expect(errorsFor(candidate).length).toBeGreaterThan(0);
+  });
+
+  it('rejects a raw brew-water temperature that conflicts with its Medium baseline', () => {
+    const candidate = clone();
+    const water = candidate.drinks.find(({ id }) => id === 'pour-over')!.recipe.ingredients
+      .find(({ name }) => name === 'Water')!;
+    water.temperatureC = 90;
+
+    expect(errorsFor(candidate).join(' ')).toMatch(/brew-water.*temperature.*match/i);
+  });
 });

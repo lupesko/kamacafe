@@ -1,7 +1,8 @@
-import { useEffect } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { AppHeader } from './components/app-header';
 import { SiteFooter } from './components/site-footer';
-import { catalog, categoriesById, drinksById, drinksForCategory, resolvedRecipesByDrinkId } from './catalog/load';
+import { catalog, categoriesById, drinksById, drinksForCategory, resolvedRecipesByDrinkIdAndRoast } from './catalog/load';
+import type { RoastLevel } from './catalog/types';
 import { useHashRoute } from './routing/use-hash-route';
 import { HomeView } from './views/home-view';
 import { CategoryView } from './views/category-view';
@@ -10,6 +11,7 @@ import { UnavailableView } from './views/unavailable-view';
 
 export function App() {
   const route = useHashRoute();
+  const [roastLevel, setRoastLevel] = useState<RoastLevel>('dark');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -24,8 +26,17 @@ export function App() {
   } else if (route.kind === 'drink') {
     const drink = drinksById.get(route.id);
     const category = drink ? categoriesById.get(drink.category) : undefined;
-    const recipe = drink ? resolvedRecipesByDrinkId.get(drink.id) : undefined;
-    view = drink && category && recipe ? <DrinkView key={drink.id} category={category} drink={drink} recipe={recipe} /> : null;
+    const recipe = drink ? resolvedRecipesByDrinkIdAndRoast.get(drink.id)?.[roastLevel] : undefined;
+    view = drink && category && recipe ? (
+      <DrinkView
+        key={drink.id}
+        category={category}
+        drink={drink}
+        recipe={recipe}
+        roastLevel={roastLevel}
+        onRoastLevelChange={setRoastLevel}
+      />
+    ) : null;
   } else {
     view = <UnavailableView hash={route.hash} />;
   }
