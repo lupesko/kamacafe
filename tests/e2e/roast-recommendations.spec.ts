@@ -130,6 +130,7 @@ test('every published drink renders the exact method matrix for all three roasts
       } else {
         await expect(factRow(page, 'Water').locator('dd')).toContainText(expected.temperature);
       }
+      // Turkish steps may include the exact temperature after roast selection while preserving the room-temperature cue.
       await expect(page.getByRole('list', { name: 'Preparation steps' })).toContainText(
         method === 'turkish' ? /room-temperature(?: 20°C)? water/ : expected.temperature,
       );
