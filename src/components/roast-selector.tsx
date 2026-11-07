@@ -17,7 +17,7 @@ export function RoastSelector({ value, recommendation, onChange }: RoastSelector
   return (
     <section class="roast-guidance" aria-label="Roast recommendation">
       <fieldset class="roast-selector">
-        <legend>Roast level</legend>
+        <legend>Pick your roast</legend>
         <div class="roast-selector__options">
           {ROAST_LEVELS.map((level) => (
             <label class="roast-selector__option" key={level}>
@@ -34,15 +34,18 @@ export function RoastSelector({ value, recommendation, onChange }: RoastSelector
         </div>
       </fieldset>
 
-      <div class="roast-explanation" aria-live="polite">
-        <h3 class="roast-explanation__title">{labels[recommendation.level]} roast starting point</h3>
-        <dl>
-          <div><dt>Flavor</dt><dd>{recommendation.flavor}</dd></div>
-          <div><dt>Extraction</dt><dd>{recommendation.extraction}</dd></div>
-          <div><dt>Temperature</dt><dd>{recommendation.temperatureExplanation}</dd></div>
-          <div><dt>Grind</dt><dd>{recommendation.grindExplanation}</dd></div>
-        </dl>
-      </div>
+      <details class="roast-details">
+        <summary class="roast-details__summary">About this roast</summary>
+        <div class="roast-explanation" aria-live="polite">
+          <h3 class="roast-explanation__title">{labels[recommendation.level]} roast starting point</h3>
+          <dl>
+            <div><dt>Flavor</dt><dd>{recommendation.flavor}</dd></div>
+            <div><dt>Extraction</dt><dd>{recommendation.extraction}</dd></div>
+            <div><dt>Temperature</dt><dd>{recommendation.temperatureExplanation}</dd></div>
+            <div><dt>Grind</dt><dd>{recommendation.grindExplanation}</dd></div>
+          </dl>
+        </div>
+      </details>
     </section>
   );
 }

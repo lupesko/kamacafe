@@ -80,7 +80,34 @@ for (const width of widths) {
       const box = await label.boundingBox();
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
       expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+
+      const text = label.locator('span');
+      const textBox = await text.boundingBox();
+      const lineTops = await text.evaluate((element) => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        return [...range.getClientRects()]
+          .filter(({ width: fragmentWidth, height: fragmentHeight }) => fragmentWidth > 0 && fragmentHeight > 0)
+          .map(({ top }) => Math.round(top * 10) / 10);
+      });
+
+      expect(textBox).not.toBeNull();
+      expect(new Set(lineTops).size).toBe(1);
+      expect(textBox!.x).toBeGreaterThanOrEqual(box!.x);
+      expect(textBox!.x + textBox!.width).toBeLessThanOrEqual(box!.x + box!.width + 0.5);
     }
+
+    const details = page.locator('details.roast-details');
+    const summary = page.locator('summary.roast-details__summary');
+    await expect(details).not.toHaveAttribute('open', '');
+    const closedBox = await guidance.boundingBox();
+    await summary.click();
+    await expect(details).toHaveAttribute('open', '');
+    const expandedBox = await guidance.boundingBox();
+    expect(closedBox).not.toBeNull();
+    expect(expandedBox).not.toBeNull();
+    expect(closedBox!.height).toBeLessThanOrEqual(expandedBox!.height * 0.6);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   });
 }
 
@@ -137,8 +164,29 @@ test('preparation guidance uses a logical heading and ordered list', async ({ pa
   await expect(page.locator('ol[aria-label="Preparation steps"]')).toBeVisible();
 });
 
-test('roast radios support native keyboard selection and visible focus', async ({ page }) => {
+test('roast disclosure and radios support native keyboard operation, visible focus, and accessible states', async ({ page }) => {
   await page.goto('/#espresso');
+  const details = page.locator('details.roast-details');
+  const summary = page.locator('summary.roast-details__summary');
+
+  const closedResults = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(closedResults.violations).toEqual([]);
+
+  const summaryBox = await summary.boundingBox();
+  expect(summaryBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+  expect(summaryBox?.width ?? 0).toBeGreaterThanOrEqual(44);
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  expect(await summary.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe('none');
+  await page.keyboard.press('Enter');
+  await expect(details).toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(details).not.toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+
   const dark = page.getByRole('radio', { name: 'Dark' });
   await dark.focus();
   await expect(dark).toBeFocused();
@@ -149,8 +197,9 @@ test('roast radios support native keyboard selection and visible focus', async (
   await page.keyboard.press('ArrowLeft');
   await expect(page.getByRole('radio', { name: 'Light' })).toBeChecked();
 
-  const results = await new AxeBuilder({ page })
+  await summary.click();
+  const expandedResults = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();
-  expect(results.violations).toEqual([]);
+  expect(expandedResults.violations).toEqual([]);
 });

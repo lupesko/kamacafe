@@ -9,6 +9,17 @@ const factRow = (page: Page, label: string) => page.locator('.recipe-facts__row'
   has: page.locator('dt').filter({ hasText: new RegExp(`^${label}$`) }),
 });
 
+const roastDetails = (page: Page) => page.locator('details.roast-details');
+const roastSummary = (page: Page) => page.locator('summary.roast-details__summary');
+
+const openRoastDetails = async (page: Page) => {
+  const details = roastDetails(page);
+  if (!await details.evaluate((element) => element.hasAttribute('open'))) {
+    await roastSummary(page).click();
+  }
+  await expect(details).toHaveAttribute('open', '');
+};
+
 test('Dark is the fresh-load default and switching roast updates facts and local steps', async ({ page }) => {
   await page.goto('/#pour-over');
 
@@ -44,6 +55,39 @@ test('the selection persists during the visit and resets to Dark on reload', asy
   await expect(page.getByRole('radio', { name: 'Dark' })).toBeChecked();
 });
 
+test('roast explanation starts closed, follows its own toggle state, and resets for a new guide', async ({ page }) => {
+  await page.goto('/#espresso');
+
+  await expect(roastSummary(page)).toHaveText('About this roast');
+  await expect(roastDetails(page)).not.toHaveAttribute('open', '');
+  await expect(page.locator('.roast-explanation')).not.toBeVisible();
+  for (const roast of ['Light', 'Medium', 'Dark']) {
+    await expect(page.getByRole('radio', { name: roast })).toBeVisible();
+  }
+
+  await page.getByRole('radio', { name: 'Light' }).check();
+  await expect(roastDetails(page)).not.toHaveAttribute('open', '');
+  await expect(factRow(page, 'Espresso brew temperature').locator('dd')).toHaveText('94°C');
+
+  await openRoastDetails(page);
+  await expect(page.getByText('Light roast starting point')).toBeVisible();
+  await page.getByRole('radio', { name: 'Medium' }).check();
+  await expect(roastDetails(page)).toHaveAttribute('open', '');
+  await expect(page.getByText('Medium roast starting point')).toBeVisible();
+
+  await roastSummary(page).click();
+  await expect(roastDetails(page)).not.toHaveAttribute('open', '');
+  await expect(page.locator('.roast-explanation')).not.toBeVisible();
+  await expect(page.getByRole('radio', { name: 'Medium' })).toBeVisible();
+
+  await page.getByRole('link', { name: /Espresso drinks/ }).click();
+  await page.getByRole('link', { name: /Latte/ }).click();
+  await expect(roastDetails(page)).not.toHaveAttribute('open', '');
+  await openRoastDetails(page);
+  await page.reload();
+  await expect(roastDetails(page)).not.toHaveAttribute('open', '');
+});
+
 test('changing roast retains the serving multiplier', async ({ page }) => {
   await page.goto('/#pour-over');
   await page.getByRole('button', { name: 'Increase servings' }).click();
@@ -56,6 +100,7 @@ test('changing roast retains the serving multiplier', async ({ page }) => {
 
 test('every selected roast explains flavor, extraction, temperature, and grind without troubleshooting', async ({ page }) => {
   await page.goto('/#espresso');
+  await openRoastDetails(page);
 
   for (const roast of ['Light', 'Medium', 'Dark']) {
     await page.getByRole('radio', { name: roast }).check();
@@ -73,6 +118,7 @@ test('every selected roast explains flavor, extraction, temperature, and grind w
 
 test('Turkish guidance explicitly explains fixed settings while controlled heating changes', async ({ page }) => {
   await page.goto('/#turkish');
+  await openRoastDetails(page);
 
   for (const roast of ['Light', 'Medium', 'Dark']) {
     await page.getByRole('radio', { name: roast }).check();
@@ -119,6 +165,12 @@ const matrix: Record<string, Record<RoastLevel, { temperature: string; grind: st
 test('every published drink renders the exact method matrix for all three roasts', async ({ page }) => {
   for (const drink of catalog.drinks) {
     await page.goto(`/#${drink.id}`);
+    await expect(roastDetails(page)).not.toHaveAttribute('open', '');
+    const roastGroup = page.getByRole('group', { name: 'Pick your roast' });
+    await expect(roastGroup).toBeVisible();
+    for (const label of ['Light', 'Medium', 'Dark']) {
+      await expect(roastGroup.getByRole('radio', { name: label })).toBeVisible();
+    }
     const method = methodByDrink.get(drink.id)!;
     for (const level of ['light', 'medium', 'dark'] as const) {
       const label = `${level[0].toUpperCase()}${level.slice(1)}`;
@@ -177,6 +229,7 @@ test('changing servings before or after roast produces the same two-serving Pour
 
 test('rapid selection leaves the final checked option, explanations, facts, and steps synchronized', async ({ page }) => {
   await page.goto('/#french-press');
+  await openRoastDetails(page);
   await page.getByRole('radio', { name: 'Light' }).check();
   await page.getByRole('radio', { name: 'Medium' }).check();
   await page.getByRole('radio', { name: 'Dark' }).check();

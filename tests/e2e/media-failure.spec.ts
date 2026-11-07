@@ -6,6 +6,8 @@ test('essential guidance survives complete image failure', async ({ page }) => {
 
   await expect(page.getByRole('heading', { level: 1, name: 'Latte' })).toBeVisible();
   await expect(page.getByRole('radio', { name: 'Dark' })).toBeChecked();
+  await expect(page.locator('summary.roast-details__summary')).toHaveText('About this roast');
+  await page.locator('summary.roast-details__summary').click();
   await expect(page.locator('.roast-explanation dt')).toHaveText(['Flavor', 'Extraction', 'Temperature', 'Grind']);
   await expect(page.getByText('Ground coffee')).toBeVisible();
   await expect(page.getByText('Milk', { exact: true })).toBeVisible();

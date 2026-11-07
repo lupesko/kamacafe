@@ -6,11 +6,13 @@ KamaCafe was built with GitHub's [SpecKit](https://github.com/github/spec-kit) S
 Every drink guide offers Light, Medium, and Dark roast guidance. Dark is selected
 on each fresh load; changing the selection updates method-appropriate flavor,
 extraction, temperature, grind, and preparation steps across drink navigation
-for the current visit. The choice stays in memory only—it is not stored in an
-account, browser storage, or the URL. Root recipes own the three roast profiles,
-and espresso-derived drinks inherit the selected Espresso guidance while
-preserving their milk, chocolate, ice, dilution, and assembly instructions. The
-application remains a static, no-account guide with no runtime data service.
+for the current visit. Roast selection remains visible, while the supporting
+explanation is available under `About this roast` and starts collapsed on each
+guide. The choice stays in memory only—it is not stored in an account, browser
+storage, or the URL. Root recipes own the three roast profiles, and
+espresso-derived drinks inherit the selected Espresso guidance while preserving
+their milk, chocolate, ice, dilution, and assembly instructions. The application
+remains a static, no-account guide with no runtime data service.
 
 ## Run locally
 
